@@ -10,9 +10,10 @@ int main()
 
 	DBM->init();
 	while (COMMANDE != "EXIT"){
-		 std::getline(std::cin, COMMANDE);
-		if(COMMANDE != "EXIT") DBM->processCommand(COMMANDE);
+		std::getline(std::cin, COMMANDE);
+		if(COMMANDE.length() && COMMANDE != "EXIT") DBM->processCommand(COMMANDE);
 	}
 	DBM->finish();
+
 	delete DBM;
 }
