@@ -6,10 +6,10 @@ NAME				=	minisgbd
 ################################################################################
 #                          Paths of sources and objects                        #
 ################################################################################
-PATH_INCLUDES		=	include
-PATH_SRCS			=	src
-PATH_OBJS			=	obj
-PATH_LIBS			=	lib
+PATH_INCLUDES		=	Code/include
+PATH_SRCS			=	Code/src
+PATH_OBJS			=	Code/obj
+PATH_LIBS			=	Code/lib
 
 ################################################################################
 #                              Name of sources files                           #
@@ -51,10 +51,11 @@ $(NAME):			enter_name $(PATH_LIBS) $(PATH_OBJS) enter_objs $(OBJS)
 
 $(PATH_LIBS):
 					@echo "\033[92mCreating libs folder\033[0m"
-					@mkdir -p $(PATH_LIBS)
+					@mkdir $(PATH_LIBS)
 
 $(PATH_OBJS):
 					@echo "\033[92mCreating objs folders\033[0m"
+					@mkdir $(PATH_OBJS)
 
 all:				$(NAME)
 
