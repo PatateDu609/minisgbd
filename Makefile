@@ -15,7 +15,9 @@ PATH_LIBS			=	Code/lib
 #                              Name of sources files                           #
 ################################################################################
 
-SRCS_BASENAME = main
+SRCS_BASENAME = main \
+				DBInfo \
+				DBManager \
 
 ################################################################################
 #                             Commands and arguments                           #

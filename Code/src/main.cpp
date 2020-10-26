@@ -1,6 +1,18 @@
 #include <iostream>
+#include <string>
+#include "DBManager.hpp"
+#include "DBInfo.hpp"
 
-int main(int argc, char *argv[])
+int main()
 {
-	std::cout << "Hello world!" << std::endl;
+	DBManager* DBM = DBManager::getInstance();
+    std::string COMMANDE = "";
+    
+    DBM->init();
+    while (COMMANDE != "EXIT"){
+         std::getline(std::cin, COMMANDE);
+        if(COMMANDE != "EXIT") DBM->processCommand(COMMANDE);
+    }
+    DBM->finish();
+	delete DBM;
 }
