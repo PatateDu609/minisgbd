@@ -1,91 +1,77 @@
-#
-# 'make'        build executable file 'main'
-# 'make clean'  removes all .o and executable files
-#
+################################################################################
+#                               Name of the output                             #
+################################################################################
+NAME				=	minisgbd
 
-# define the Cpp compiler to use
-CXX = g++
+################################################################################
+#                          Paths of sources and objects                        #
+################################################################################
+PATH_INCLUDES		=	include
+PATH_SRCS			=	src
+PATH_OBJS			=	obj
+PATH_LIBS			=	lib
 
-# define any compile-time flags
-CXXFLAGS	:= -std=c++17 -Wall -Wextra -g
+################################################################################
+#                              Name of sources files                           #
+################################################################################
 
-# define library paths in addition to /usr/lib
-#   if I wanted to include libraries not in /usr/lib I'd specify
-#   their path using -Lpath, something like:
-LFLAGS =
+SRCS_BASENAME = main
 
-# define output directory
-OUTPUT	:= output
+################################################################################
+#                             Commands and arguments                           #
+################################################################################
+RM					=	@rm -f
+GCC					=	@g++
+CFLAGS				=	-g -I$(PATH_INCLUDES)
+LDFLAGS				=
 
-# define source directory
-SRC		:= src
+# DEBUG LDFLAGS :
+LDFLAGS				+=	-fsanitize=address -g
 
-# define include directory
-INCLUDE	:= include
+################################################################################
+#                         DO NOT MODIFY BELOW THIS POINT                       #
+################################################################################
 
-# define lib directory
-LIB		:= lib
+SRCS_EXT			=	$(addsuffix .cpp, $(SRCS_BASENAME))
 
-ifeq ($(OS),Windows_NT)
-MAIN	:= main.exe
-SOURCEDIRS	:= $(SRC)
-INCLUDEDIRS	:= $(INCLUDE)
-LIBDIRS		:= $(LIB)
-FIXPATH = $(subst /,\,$1)
-RM			:= del /q /f
-MD	:= mkdir
-else
-MAIN	:= main
-SOURCEDIRS	:= $(shell find $(SRC) -type d)
-INCLUDEDIRS	:= $(shell find $(INCLUDE) -type d)
-LIBDIRS		:= $(shell find $(LIB) -type d)
-FIXPATH = $1
-RM = rm -f
-MD	:= mkdir -p
+SRCS				=	$(addprefix $(PATH_SRCS)/, $(SRCS_EXT))
+OBJS				=	$(addprefix $(PATH_OBJS)/, $(SRCS_EXT:.cpp=.o))
+
+OS					=	$(shell uname)
+ifeq ($(OS), Linux)
+	LDFLAGS			+=	-fsanitize=leak
 endif
 
-# define any directories containing header files other than /usr/include
-INCLUDES	:= $(patsubst %,-I%, $(INCLUDEDIRS:%/=%))
+$(PATH_OBJS)/%.o:	$(PATH_SRCS)/%.cpp
+					$(GCC) $(CFLAGS) -c $< -o $@
 
-# define the C libs
-LIBS		:= $(patsubst %,-L%, $(LIBDIRS:%/=%))
+$(NAME):			enter_name $(PATH_LIBS) $(PATH_OBJS) enter_objs $(OBJS)
+					@echo "\033[46;90;1mLinking everything\033[0m"
+					$(GCC) $(OBJS)  -o $(NAME) $(LDFLAGS)
 
-# define the C source files
-SOURCES		:= $(wildcard $(patsubst %,%/*.cpp, $(SOURCEDIRS)))
+$(PATH_LIBS):
+					@echo "\033[92mCreating libs folder\033[0m"
+					@mkdir -p $(PATH_LIBS)
 
-# define the C object files 
-OBJECTS		:= $(SOURCES:.cpp=.o)
+$(PATH_OBJS):
+					@echo "\033[92mCreating objs folders\033[0m"
 
-#
-# The following part of the makefile is generic; it can be used to 
-# build any executable just by changing the definitions above and by
-# deleting dependencies appended to the file from 'make depend'
-#
+all:				$(NAME)
 
-OUTPUTMAIN	:= $(call FIXPATH,$(OUTPUT)/$(MAIN))
+re:					fclean all
 
-all: $(OUTPUT) $(MAIN)
-	@echo Executing 'all' complete!
+.PHONY:				all clean fclean re
 
-$(OUTPUT):
-	$(MD) $(OUTPUT)
-
-$(MAIN): $(OBJECTS) 
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(OUTPUTMAIN) $(OBJECTS) $(LFLAGS) $(LIBS)
-
-# this is a suffix replacement rule for building .o's from .c's
-# it uses automatic variables $<: the name of the prerequisite of
-# the rule(a .c file) and $@: the name of the target of the rule (a .o file) 
-# (see the gnu make manual section about automatic variables)
-.cpp.o:
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $<  -o $@
-
-.PHONY: clean
 clean:
-	$(RM) $(OUTPUTMAIN)
-	$(RM) $(call FIXPATH,$(OBJECTS))
-	@echo Cleanup complete!
+					$(RM) $(OBJS)
 
-run: all
-	./$(OUTPUTMAIN)
-	@echo Executing 'run: all' complete!
+fclean:				clean
+					$(RM) -r $(PATH_OBJS) $(PATH_LIBS)
+
+enter_name:
+					@echo "\033[31mMaking \033[1m$(NAME)\033[0m"
+
+enter_objs:
+					@echo "\033[92mCompiling objs\033[0m"
+
+.PHONY:				all clean fclean re
