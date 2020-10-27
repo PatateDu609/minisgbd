@@ -18,6 +18,7 @@ PATH_LIBS			=	Code/lib
 SRCS_BASENAME = main \
 				DBInfo \
 				DBManager \
+				DiskManager \
 
 ################################################################################
 #                             Commands and arguments                           #
