@@ -9,6 +9,7 @@
 std::string DBParams::DBPath = "DB/";
 int DBParams::pageSize = 4096;
 
+#ifndef TESTS
 int main()
 {
 	// DBManager* DBM = DBManager::getInstance();
@@ -37,3 +38,4 @@ int main()
 		printf("%x%c", buf[i] & 0xff, i + 1 < DBParams::pageSize ? ' ' : '\n');
 	delete DM;
 }
+#endif
