@@ -28,6 +28,7 @@ SRCS_BASENAME		=	main		\
 ################################################################################
 
 TESTS_BASENAME		=	main			\
+						DiskManager		\
 
 ################################################################################
 #                             Commands and arguments                           #
@@ -46,7 +47,7 @@ LDFLAGS				+=	-fsanitize=address -g
 ################################################################################
 
 SRCS_EXT			=	$(addsuffix .cpp, $(SRCS_BASENAME))
-TESTS_EXT			=	$(addsuffix .cpp, $(TESTS_BASENAME))
+TESTS_EXT			=	$(addsuffix Tests.cpp, $(TESTS_BASENAME))
 
 SRCS				=	$(addprefix $(PATH_SRCS)/, $(SRCS_EXT))
 TESTS				=	$(addprefix $(PATH_TESTS)/, $(TESTS_EXT))
@@ -56,10 +57,6 @@ OBJS_TESTS			=	$(addprefix $(PATH_OBJS_TESTS)/, $(TESTS_EXT:.cpp=.o))
 OS					=	$(shell uname)
 ifeq ($(OS), Linux)
 	LDFLAGS			+=	-fsanitize=leak
-endif
-
-ifeq ($(TEST), 1)
-	CFLAGS			+=	-DTESTS
 endif
 
 $(PATH_OBJS)/%.o:			$(PATH_SRCS)/%.cpp
@@ -72,9 +69,9 @@ $(NAME):					enter_name $(PATH_LIBS) $(PATH_OBJS) enter_objs $(OBJS)
 							@echo "\033[46;90;1mLinking everything\033[0m"
 							$(GCC) $(OBJS) -o $(NAME) $(LDFLAGS)
 
-$(TESTS_NAME):				enter_tests $(PATH_LIBS) $(PATH_OBJS) enter_objs $(OBJS) enter_tests $(OBJS_TESTS)
+$(TESTS_NAME):				enter_tests $(PATH_LIBS) $(PATH_OBJS) enter_objs $(OBJS) enter_tests_objs $(OBJS_TESTS)
 							@echo "\033[46;90;1mLinking all tests\033[0m"
-							$(GCC) $(OBJS) $(OBJS_TESTS) -o $(TESTS_NAME) $(LDFLAGS_TESTS)
+							$(GCC) $(filter-out $(PATH_OBJS)/main.o, $(OBJS)) $(OBJS_TESTS) -o $(TESTS_NAME) $(LDFLAGS_TESTS)
 
 $(PATH_LIBS):
 							@echo "\033[92mCreating libs folder\033[0m"
@@ -87,8 +84,10 @@ $(PATH_OBJS):
 
 all:						$(NAME)
 
-tests:						fclean
-							@make -s $(TESTS_NAME) TEST=1
+tests:						$(TESTS_NAME)
+							@echo "\n"
+							@echo "\033[94;1mLaunching tests\033[0m\n"
+							@./$(TESTS_NAME)
 
 re:							fclean all
 
@@ -98,15 +97,18 @@ clean:
 							$(RM) $(OBJS)
 
 fclean:						clean
-							$(RM) -r $(PATH_OBJS) $(PATH_LIBS) $(TESTS_NAME)
+							$(RM) -r $(PATH_OBJS) $(PATH_LIBS)
 
 enter_name:
 							@echo "\033[31mMaking \033[1m$(NAME)\033[0m"
 
+enter_tests:
+							@echo "\033[31mMaking \033[1m$(NAME)\033[0;31m but with tests\033[0,"
+
 enter_objs:
 							@echo "\033[92mCompiling objs\033[0m"
 
-enter_tests:
+enter_tests_objs:
 							@echo "\033[92mCompiling test objs\033[0m"
 
 .PHONY:						all clean fclean re tests
