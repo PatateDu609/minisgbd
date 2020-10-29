@@ -22,6 +22,7 @@ SRCS_BASENAME		=	main		\
 						DBInfo		\
 						DBManager	\
 						DiskManager	\
+						Input		\
 
 ################################################################################
 #                              Name of test files                              #
@@ -36,8 +37,8 @@ TESTS_BASENAME		=	main			\
 RM					=	@rm -f
 GCC					=	@g++
 CFLAGS				=	-g -I$(PATH_INCLUDES)
-LDFLAGS				=
-LDFLAGS_TESTS		=	-lgtest -lgtest_main -lpthread
+LDFLAGS				=	-ltermcap
+LDFLAGS_TESTS		=	$(LDFLAGS) -lgtest -lgtest_main -lpthread
 
 # DEBUG LDFLAGS :
 LDFLAGS				+=	-fsanitize=address -g
