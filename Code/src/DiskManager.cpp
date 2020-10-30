@@ -74,8 +74,21 @@ PageId DiskManager::AddPage(int fileIdx){
 }
 
 void DiskManager::ReadPage(PageId pageId, char buf[]){
-	std::fstream file(getFilename(pageId.FileIdx), std::ios::in);
+	std::fstream file(getFilename(pageId.FileIdx), std::ios::in | std::ios::binary);
 
+	if (!file.is_open())
+	{
+		std::cerr << "ERREUR : Le fichier Data_" << pageId.FileIdx << ".rf n'a pas pu être ouvert !" << std::endl;
+		return ;
+	}
+	size_t filesize = sizeFile(getFilename(pageId.FileIdx));
+
+	if (filesize <= pageId.PageIdx * DBParams::pageSize)
+	{
+		std::cerr << "ERREUR : La page demandée n'existe pas dans le fichier Data_" << pageId.FileIdx << ".rf !" << std::endl;
+		file.close();
+		return ;
+	}
 	file.seekg(pageId.PageIdx * DBParams::pageSize);
 	file.read(buf, DBParams::pageSize);
 	file.close();
@@ -85,9 +98,19 @@ void DiskManager::WritePage(PageId pageId, char buf[]){
 	std::fstream file(getFilename(pageId.FileIdx), std::ios::in);
 
 	if (!file.is_open())
+	{
+		std::cerr << "ERREUR : Le fichier Data_" << pageId.FileIdx << ".rf n'a pas pu être ouvert !" << std::endl;
 		return ;
+	}
 	file.close();
-	file.open(getFilename(pageId.FileIdx), std::ios::out | std::ios::app);
+	size_t filesize = sizeFile(getFilename(pageId.FileIdx));
+	if (filesize <= pageId.PageIdx * DBParams::pageSize)
+	{
+		std::cerr << "ERREUR : La page demandée n'existe pas dans le fichier Data_" << pageId.FileIdx << ".rf !" << std::endl;
+		return ;
+	}
+
+	file.open(getFilename(pageId.FileIdx), std::ios::out | std::ios::app | std::ios::binary);
 
 	file.seekp(pageId.PageIdx * DBParams::pageSize);
 	file.write(buf, DBParams::pageSize);
