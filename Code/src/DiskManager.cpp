@@ -2,6 +2,7 @@
 #include "DBParams.hpp"
 #include <fstream>
 #include <iostream>
+#include <vector>
 #include <string.h>
 
 DiskManager *DiskManager::INSTANCE = nullptr;
@@ -95,7 +96,8 @@ void DiskManager::ReadPage(PageId pageId, char buf[]){
 }
 
 void DiskManager::WritePage(PageId pageId, char buf[]){
-	std::fstream file(getFilename(pageId.FileIdx), std::ios::in);
+	std::vector<char *> PAGES;
+	std::fstream file(getFilename(pageId.FileIdx), std::ios::in | std::ios::binary);
 
 	if (!file.is_open())
 	{
@@ -103,16 +105,27 @@ void DiskManager::WritePage(PageId pageId, char buf[]){
 		return ;
 	}
 	file.close();
+
 	size_t filesize = sizeFile(getFilename(pageId.FileIdx));
 	if (filesize <= pageId.PageIdx * DBParams::pageSize)
 	{
 		std::cerr << "ERREUR : La page demandée n'existe pas dans le fichier Data_" << pageId.FileIdx << ".rf !" << std::endl;
+		file.close();
 		return ;
 	}
+	file.open(getFilename(pageId.FileIdx), std::ios::in | std::ios::binary);
 
-	file.open(getFilename(pageId.FileIdx), std::ios::out | std::ios::app | std::ios::binary);
-
-	file.seekp(pageId.PageIdx * DBParams::pageSize);
-	file.write(buf, DBParams::pageSize);
+	char BUFFER[filesize];
+	file.read(BUFFER, filesize);
+	// std::cout << "END" << std::endl;
+	memcpy(BUFFER + pageId.PageIdx * DBParams::pageSize, buf, DBParams::pageSize);
 	file.close();
+	file.open(getFilename(pageId.FileIdx), std::ios::trunc | std::ios::out | std::ios::binary);
+	file.write(BUFFER, filesize);
+	file.close();
+
+	for (char *PAGE : PAGES)
+	{
+		delete[] PAGE;
+	}
 }

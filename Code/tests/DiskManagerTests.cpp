@@ -249,62 +249,104 @@ TEST(DiskManagerTest, testReadPageWrongPage)
 
 // TESTS SUR LA FONCTION WRITEPAGE
 
-// TEST(DiskManagerTest, testWritePageStandard)
-// {
-// 	std::srand(std::time(NULL));
-// 	char *BUFFER;
-// 	DiskManager *DM = DiskManager::getInstance();
-// 	std::vector<char *> BUFFERS;
-// 	int NEEDED = 100;
-// 	PageId pageId;
-// 	int idx = 0;
-// 	char BUF[DBParams::pageSize];
+TEST(DiskManagerTest, testWritePageStandard)
+{
+	std::srand(std::time(NULL));
+	char *BUFFER;
+	DiskManager *DM = DiskManager::getInstance();
+	std::vector<char *> BUFFERS;
+	int NEEDED = 100;
+	PageId pageId;
+	int idx = 0;
+	char BUF[DBParams::pageSize];
 
-// 	std::fstream file(getFilename(idx), std::ios::trunc | std::ios::out);
-// 	bzero(BUF, DBParams::pageSize);
-// 	for (int page = 0; page < NEEDED + 2; page++)
-// 		file.write(BUF, DBParams::pageSize);
-// 	file.close();
+	std::fstream file(getFilename(idx), std::ios::trunc | std::ios::out);
+	bzero(BUF, DBParams::pageSize);
+	for (int page = 0; page < NEEDED; page++)
+		file.write(BUF, DBParams::pageSize);
+	file.close();
 
-// 	pageId.FileIdx = idx;
-// 	for (int page = 0; page < NEEDED; page++)
-// 	{
-// 		BUFFER = new char[DBParams::pageSize];
-// 		for (int i = 0; i < DBParams::pageSize; i++)
-// 			BUFFER[i] = std::rand() % 128;
-// 		BUFFERS.push_back(BUFFER);
-// 		DM->WritePage(pageId, BUFFER);
-// 	}
+	pageId.FileIdx = idx;
+	for (int page = 0; page < NEEDED; page++)
+	{
+		pageId.PageIdx = page;
+		BUFFER = new char[DBParams::pageSize];
+		for (int i = 0; i < DBParams::pageSize; i++)
+			BUFFER[i] = std::rand() % 128;
+		BUFFERS.push_back(BUFFER);
+		DM->WritePage(pageId, BUFFER);
+	}
 
-// 	ASSERT_EQ(sizeFile(getFilename(idx)), DBParams::pageSize * NEEDED);
-// 	file.open(getFilename(idx), std::ios::in);
-// 	int i;
-// 	for (int page = 0; page < NEEDED; page++)
-// 	{
-// 		file.read(BUF, DBParams::pageSize);
-// 		for (i = 0; i < DBParams::pageSize && BUF[i] == BUFFERS[page][i]; i++);
-// 		EXPECT_EQ(i, DBParams::pageSize);
-// 	}
-// 	file.close();
-// 	DM->resetInstance();
-// 	remove(getFilename(idx).c_str());
-// 	for (char *v : BUFFERS)
-// 		delete[] v;
-// }
+	ASSERT_EQ(sizeFile(getFilename(idx)), DBParams::pageSize * NEEDED);
+	file.open(getFilename(idx), std::ios::in);
+	int i;
+	for (int page = 0; page < NEEDED; page++)
+	{
+		file.read(BUF, DBParams::pageSize);
+		for (i = 0; i < DBParams::pageSize && BUF[i] == BUFFERS[page][i]; i++);
+		EXPECT_EQ(i, DBParams::pageSize);
+	}
+	file.close();
+	DM->resetInstance();
+	remove(getFilename(idx).c_str());
+	for (char *v : BUFFERS)
+		delete[] v;
+}
 
-// TEST(DiskManagerTest, testWritePageWrongFile)
-// {
-// 	DiskManager *DM = DiskManager::getInstance();
-// 	int fdx = 0;
-// 	PageId pageId = { .FileIdx = fdx, .PageIdx = 0 };
+TEST(DiskManagerTest, testWritePageWrongFile)
+{
+	DiskManager *DM = DiskManager::getInstance();
+	int fdx = 0;
+	PageId pageId = { .FileIdx = fdx, .PageIdx = 0 };
 
-// 	std::stringstream buffer;
-// 	std::streambuf *old = std::cerr.rdbuf(buffer.rdbuf());
-// 	char buf[DBParams::pageSize];
+	std::stringstream buffer;
+	std::streambuf *old = std::cerr.rdbuf(buffer.rdbuf());
+	char buf[DBParams::pageSize];
 
-// 	DM->WritePage(pageId, buf);
-// 	EXPECT_EQ(buffer.str(), "ERREUR : Le fichier Data_" + std::to_string(fdx) + ".rf n'a pas pu être ouvert !\n");
+	DM->WritePage(pageId, buf);
+	EXPECT_EQ(buffer.str(), "ERREUR : Le fichier Data_" + std::to_string(fdx) + ".rf n'a pas pu être ouvert !\n");
 
-// 	DM->resetInstance();
-// 	std::cerr.rdbuf(old);
-// }
+	DM->resetInstance();
+	std::cerr.rdbuf(old);
+}
+
+TEST(DiskManagerTest, testWritePageWrongPage)
+{
+	std::srand(std::time(NULL));
+	DiskManager *DM = DiskManager::getInstance();
+	std::vector<char *> BUFFERS;
+	char *BUFFER;
+	int NEEDED = 100;
+	int idx = 0;
+	PageId pageId;
+	std::fstream file(getFilename(idx), std::ios::out | std::ios::trunc | std::ios::binary);
+
+	pageId.FileIdx = idx;
+	for (int page = 0; page < NEEDED; page++)
+	{
+		BUFFER = new char[DBParams::pageSize];
+		for (int i = 0; i < DBParams::pageSize; i++)
+			BUFFER[i] = std::rand() % 128;
+		BUFFERS.push_back(BUFFER);
+		file.write(BUFFER, DBParams::pageSize);
+	}
+	file.close();
+
+	std::stringstream buffer;
+	std::streambuf *old = std::cerr.rdbuf(buffer.rdbuf());
+	char buf[DBParams::pageSize];
+	pageId.PageIdx = NEEDED;
+	DM->WritePage(pageId, buf);
+	EXPECT_EQ(buffer.str(), "ERREUR : La page demandée n'existe pas dans le fichier Data_" + std::to_string(idx) + ".rf !\n");
+
+	buffer.str("");
+	pageId.PageIdx = NEEDED + 1;
+	DM->WritePage(pageId, buf);
+	EXPECT_EQ(buffer.str(), "ERREUR : La page demandée n'existe pas dans le fichier Data_" + std::to_string(idx) + ".rf !\n");
+
+	DM->resetInstance();
+	std::cerr.rdbuf(old);
+	remove(getFilename(idx).c_str());
+	for (char *v : BUFFERS)
+		delete[] v;
+}
