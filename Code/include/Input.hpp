@@ -1,18 +1,18 @@
 #ifndef INPUT_HPP
 #define INPUT_HPP
 
-#include <term.h>
-#include <termcap.h>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <map>
+#include <fcntl.h>
 #include <fstream>
 #include <iostream>
-#include <termio.h>
-#include <fcntl.h>
+#include <map>
+#include <sstream>
+#include <string>
 #include <string.h>
+#include <term.h>
+#include <termcap.h>
+#include <termio.h>
 #include <unistd.h>
+#include <vector>
 
 class Input
 {

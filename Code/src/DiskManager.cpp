@@ -12,7 +12,7 @@ std::string getFilename(int fileIdx){
 }
 
 bool fileExists(std::string name){
-	std::fstream file(name, std::ios::in);
+	std::fstream file(name, std::ios::in | std::ios::binary);
 	if (!file.is_open())
 		return false;
 	file.close();
@@ -20,7 +20,7 @@ bool fileExists(std::string name){
 }
 
 size_t sizeFile(std::string name){
-	std::fstream file(name, std::ios::in | std::ios::ate);
+	std::fstream file(name, std::ios::in | std::ios::ate | std::ios::binary);
 	if (!file.is_open())
 		return 0;
 	size_t size = file.tellg();
@@ -57,12 +57,13 @@ void DiskManager::CreateFile(int fileIdx){
 	}
 	file.close();
 	file.open(getFilename(fileIdx), std::ios::out | std::ios::trunc);
+	file.close();
 }
 
 PageId DiskManager::AddPage(int fileIdx){
 	if (!fileExists(getFilename(fileIdx)))
 		return (PageId){ -1, -1 };
-	std::fstream file(getFilename(fileIdx), std::ios::out | std::ios::binary | std::ios::ate | std::ios::app);
+	std::fstream file(getFilename(fileIdx), std::ios::out | std::ios::ate | std::ios::app);
 	std::fstream::pos_type filesize = sizeFile(getFilename(fileIdx));
 	char buf[DBParams::pageSize];
 	PageId pageId = { .FileIdx = fileIdx, .PageIdx = (int)(filesize / DBParams::pageSize) };
@@ -75,7 +76,7 @@ PageId DiskManager::AddPage(int fileIdx){
 }
 
 void DiskManager::ReadPage(PageId pageId, char buf[]){
-	std::fstream file(getFilename(pageId.FileIdx), std::ios::in | std::ios::binary);
+	std::fstream file(getFilename(pageId.FileIdx), std::ios::in);
 
 	if (!file.is_open())
 	{
@@ -96,8 +97,7 @@ void DiskManager::ReadPage(PageId pageId, char buf[]){
 }
 
 void DiskManager::WritePage(PageId pageId, char buf[]){
-	std::vector<char *> PAGES;
-	std::fstream file(getFilename(pageId.FileIdx), std::ios::in | std::ios::binary);
+	std::fstream file(getFilename(pageId.FileIdx), std::ios::in);
 
 	if (!file.is_open())
 	{
@@ -113,19 +113,16 @@ void DiskManager::WritePage(PageId pageId, char buf[]){
 		file.close();
 		return ;
 	}
-	file.open(getFilename(pageId.FileIdx), std::ios::in | std::ios::binary);
+	file.open(getFilename(pageId.FileIdx), std::ios::in);
 
 	char BUFFER[filesize];
 	file.read(BUFFER, filesize);
 	// std::cout << "END" << std::endl;
 	memcpy(BUFFER + pageId.PageIdx * DBParams::pageSize, buf, DBParams::pageSize);
 	file.close();
-	file.open(getFilename(pageId.FileIdx), std::ios::trunc | std::ios::out | std::ios::binary);
+	file.open(getFilename(pageId.FileIdx), std::ios::trunc | std::ios::out);
 	file.write(BUFFER, filesize);
 	file.close();
 
-	for (char *PAGE : PAGES)
-	{
-		delete[] PAGE;
-	}
+
 }
