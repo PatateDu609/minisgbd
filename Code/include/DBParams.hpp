@@ -7,6 +7,7 @@ class DBParams
 public:
 	static std::string DBPath;
 	static int pageSize;
+	static int frameCount;
 };
 
 #endif

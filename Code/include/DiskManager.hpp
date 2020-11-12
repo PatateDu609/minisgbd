@@ -22,6 +22,7 @@ public:
 	void CreateFile(int fileIdx);
 	PageId AddPage(int fileIdx);
 	void ReadPage(PageId pageId, char buf[]);
+	bool PageExists(PageId pageId) const;
 	void WritePage(PageId pageId, char buf[]);
 };
 

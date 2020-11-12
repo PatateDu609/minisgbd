@@ -9,12 +9,12 @@
 
 std::string DBParams::DBPath = "DB/";
 int DBParams::pageSize = 4096;
+int DBParams::frameCount =2;
 
 int main()
 {
 	Input *input = Input::getInstance("");
-
-
+	
 	DBManager* DBM = DBManager::getInstance();
 	std::string COMMANDE = "";
 

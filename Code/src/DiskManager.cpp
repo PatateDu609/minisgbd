@@ -96,6 +96,13 @@ void DiskManager::ReadPage(PageId pageId, char buf[]){
 	file.close();
 }
 
+bool DiskManager::PageExists(PageId pageId) const{
+	if(fileExists(getFilename(pageId.FileIdx))) {
+		size_t fileSize = sizeFile(getFilename(pageId.FileIdx));
+		return (fileSize/DBParams::pageSize) > pageId.PageIdx;
+	} else return false;
+}
+
 void DiskManager::WritePage(PageId pageId, char buf[]){
 	std::fstream file(getFilename(pageId.FileIdx), std::ios::in);
 
@@ -123,6 +130,4 @@ void DiskManager::WritePage(PageId pageId, char buf[]){
 	file.open(getFilename(pageId.FileIdx), std::ios::trunc | std::ios::out);
 	file.write(BUFFER, filesize);
 	file.close();
-
-
 }

@@ -40,6 +40,60 @@ TEST(DiskManagerTest, testFileExists)
 	EXPECT_TRUE(fileExists("Code/src/DBManager.cpp"));
 }
 
+TEST(DiskManagerTest, testPageExists)
+{
+	DiskManager *DM = DiskManager::getInstance();
+	char BUFFER[DBParams::pageSize];
+	int NEEDED = 100;
+	int idx = 0;
+
+	std::fstream file(getFilename(idx), std::ios::out | std::ios::trunc | std::ios::binary);
+	for (int page = 0; page < NEEDED; page++)
+	{
+		for (int i = 0; i < DBParams::pageSize; i++)
+			BUFFER[i] = 6;
+		file.write(BUFFER, DBParams::pageSize);
+	}
+	file.close();
+	PageId pageId;
+	pageId.FileIdx = idx;
+	pageId.PageIdx = 5;
+	EXPECT_TRUE(DM->PageExists(pageId));
+	pageId.PageIdx = 60;
+	EXPECT_TRUE(DM->PageExists(pageId));
+	pageId.PageIdx = 0;
+	EXPECT_TRUE(DM->PageExists(pageId));
+	pageId.PageIdx = 99;
+	EXPECT_TRUE(DM->PageExists(pageId));
+	pageId.PageIdx = 100;
+	EXPECT_FALSE(DM->PageExists(pageId));
+	remove(getFilename(idx).c_str());
+
+	idx = 10;
+	NEEDED = 1000;
+	file.open(getFilename(idx), std::ios::out | std::ios::trunc | std::ios::binary);
+	for (int page = 0; page < NEEDED; page++)
+	{
+		for (int i = 0; i < DBParams::pageSize; i++)
+			BUFFER[i] = 6;
+		file.write(BUFFER, DBParams::pageSize);
+	}
+	file.close();
+	pageId.FileIdx = idx;
+	pageId.PageIdx = 65;
+	EXPECT_TRUE(DM->PageExists(pageId));
+	pageId.PageIdx = 122;
+	EXPECT_TRUE(DM->PageExists(pageId));
+	pageId.PageIdx = 999;
+	EXPECT_TRUE(DM->PageExists(pageId));
+	pageId.PageIdx = 0;
+	EXPECT_TRUE(DM->PageExists(pageId));
+	pageId.PageIdx = 4656;
+	EXPECT_FALSE(DM->PageExists(pageId));
+	remove(getFilename(idx).c_str());
+	DM->resetInstance();
+}
+
 // TESTS SUR LA FONCTION CREATEFILE
 
 TEST(DiskManagerTest, testCreateFileStandard)
@@ -350,3 +404,4 @@ TEST(DiskManagerTest, testWritePageWrongPage)
 	for (char *v : BUFFERS)
 		delete[] v;
 }
+
