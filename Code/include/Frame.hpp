@@ -10,7 +10,7 @@ struct Frame
 	int dirty;
 	int pinCount;
 	int refBit;
-	std::vector<char> pageDisk;
+	std::vector<char>* pageDisk;
 };
 
 #endif

@@ -7,4 +7,9 @@ struct PageId
 	int PageIdx;
 };
 
+bool  operator<(const PageId& a, const PageId& b);
+bool  operator==(const PageId& a, const PageId& b); 
+bool  operator!=(const PageId& a, const PageId& b);
+bool  operator>(const PageId& a, const PageId& b);
+
 #endif

@@ -8,22 +8,40 @@ BufferManager::BufferManager() : DM(NULL)
 	DM = DiskManager::getInstance();
 }
 
+BufferManager::~BufferManager(){
+	for(decltype(FRAMES)::iterator it = FRAMES.begin(); it!=FRAMES.end(); it++){
+		delete it->second->pageDisk;
+		it->second->pageDisk = NULL;
+		delete it->second;
+	}
+}
+
+void BufferManager::resetInstance(){
+	if (INSTANCE) delete INSTANCE;
+	INSTANCE = NULL;
+}
+
 BufferManager* BufferManager::getInstance()
 {
 	if (!INSTANCE) INSTANCE = new BufferManager();
 	return INSTANCE;
 }
 
-std::vector<char>& BufferManager::GetPage(PageId& pageId)
+std::vector<char>* BufferManager::GetPage(const PageId& pageId)
 {
 	if(FRAMES.size() < DBParams::frameCount) {
-		FRAMES[pageId]=new Frame;
+		FRAMES[pageId] = new Frame;
 		FRAMES[pageId]->pageId = pageId;		
 		FRAMES[pageId]->dirty = 0;		
 		FRAMES[pageId]->pinCount = 1;		
 		FRAMES[pageId]->refBit = 0;		
-		FRAMES[pageId]->pageDisk = std::vector<char>(DBParams::pageSize);
-		DM->ReadPage(pageId, FRAMES[pageId]->pageDisk.data());
+		FRAMES[pageId]->pageDisk = new std::vector<char>(DBParams::pageSize);
+		DM->ReadPage(pageId, FRAMES[pageId]->pageDisk->data());
+		return FRAMES[pageId]->pageDisk;
+	} else if(FRAMES.find(pageId) != FRAMES.end()){
+		FRAMES[pageId]->dirty = 0;		
+		FRAMES[pageId]->pinCount = 1;		
+		return FRAMES[pageId]->pageDisk;
 	}
 	else
 	{
@@ -41,18 +59,24 @@ std::vector<char>& BufferManager::GetPage(PageId& pageId)
 		replacementFrame->dirty = 0;
 		replacementFrame->refBit = 1;
 		replacementFrame->pageId = pageId;
-		replacementFrame->pageDisk.insert(replacementFrame->pageDisk.begin(), DBParams::pageSize, 0);
-		replacementFrame->pageDisk.clear();
-		DM->ReadPage(pageId, replacementFrame->pageDisk.data());
+		replacementFrame->pageDisk->insert(replacementFrame->pageDisk->begin(), DBParams::pageSize, 0);
+		replacementFrame->pageDisk->clear();
+		replacementFrame->pageDisk->resize(DBParams::pageSize);
+		DM->ReadPage(pageId, replacementFrame->pageDisk->data());
+		return replacementFrame->pageDisk;
 	}
 }
 
-void BufferManager::FreePage(PageId& pageId, bool valdirty)
+void BufferManager::FreePage(const PageId& pageId, bool valdirty)
 {
 	FRAMES[pageId]->dirty = valdirty;
 	FRAMES[pageId]->pinCount = 0;
+	FRAMES[pageId]->refBit = 0;
 	if (!valdirty) return;
-	DM->WritePage(pageId, FRAMES[pageId]->pageDisk.data());
+	DM->WritePage(pageId, FRAMES[pageId]->pageDisk->data());
+	auto tmp = FRAMES[pageId]->pageDisk;
+	FRAMES[pageId]->pageDisk = new std::vector<char>(*tmp);
+	delete tmp;
 }
 
 void BufferManager::FlushAll()
@@ -62,3 +86,8 @@ void BufferManager::FlushAll()
 		FreePage(it->first, it->second->dirty);
 	}
 }
+
+std::map<PageId, Frame*> BufferManager::getFrames() const{
+	return FRAMES;
+}
+

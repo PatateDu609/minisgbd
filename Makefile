@@ -18,11 +18,13 @@ PATH_LIBS			=	Code/lib
 #                              Name of sources files                           #
 ################################################################################
 
-SRCS_BASENAME		=	main		\
-						DBInfo		\
-						DBManager	\
-						DiskManager	\
-						Input		\
+SRCS_BASENAME		=	main		 	\
+						Operators		\
+						BufferManager	\
+						DBInfo		 	\
+						DBManager	 	\
+						DiskManager	 	\
+						Input		 	\
 
 ################################################################################
 #                              Name of test files                              #
@@ -30,6 +32,7 @@ SRCS_BASENAME		=	main		\
 
 TESTS_BASENAME		=	main			\
 						DiskManager		\
+						BufferManager	\
 
 ################################################################################
 #                             Commands and arguments                           #
