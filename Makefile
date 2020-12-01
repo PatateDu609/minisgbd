@@ -13,6 +13,8 @@ PATH_TESTS			=	Code/tests
 PATH_OBJS			=	Code/obj
 PATH_OBJS_TESTS		=	$(PATH_OBJS)/tests
 PATH_LIBS			=	Code/lib
+PATH_DB				=	DB
+PATH_DB_TESTS		=	$(PATH_DB)/Tests
 
 ################################################################################
 #                              Name of sources files                           #
@@ -69,11 +71,11 @@ $(PATH_OBJS)/%.o:			$(PATH_SRCS)/%.cpp
 $(PATH_OBJS_TESTS)/%.o:		$(PATH_TESTS)/%.cpp
 							$(GCC) $(CFLAGS) -c $< -o $@
 
-$(NAME):					enter_name $(PATH_LIBS) $(PATH_OBJS) enter_objs $(OBJS)
+$(NAME):					enter_name $(PATH_DB) $(PATH_LIBS) $(PATH_OBJS) enter_objs $(OBJS)
 							@echo "\033[46;90;1mLinking everything\033[0m"
 							$(GCC) $(OBJS) -o $(NAME) $(LDFLAGS)
 
-$(TESTS_NAME):				enter_tests $(PATH_LIBS) $(PATH_OBJS) enter_objs $(OBJS) enter_tests_objs $(OBJS_TESTS)
+$(TESTS_NAME):				enter_tests $(PATH_DB_TESTS) $(PATH_LIBS) $(PATH_OBJS) enter_objs $(OBJS) enter_tests_objs $(OBJS_TESTS)
 							@echo "\033[46;90;1mLinking all tests\033[0m"
 							$(GCC) $(filter-out $(PATH_OBJS)/main.o, $(OBJS)) $(OBJS_TESTS) -o $(TESTS_NAME) $(LDFLAGS_TESTS)
 
@@ -85,6 +87,14 @@ $(PATH_OBJS):
 							@echo "\033[92mCreating objs folders\033[0m"
 							@mkdir $(PATH_OBJS)
 							@mkdir $(PATH_OBJS_TESTS)
+
+$(PATH_DB):
+							@echo "\033[92mCreating database folder\033[0m"
+							@mkdir $(PATH_DB)
+
+$(PATH_DB_TESTS):
+							@echo "\033[92mCreating test database folder\033[0m"
+							@mkdir -p $(PATH_DB_TESTS)
 
 all:						$(NAME)
 
