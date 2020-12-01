@@ -7,7 +7,7 @@
 struct Frame
 {
 	PageId pageId;
-	int dirty;
+	bool dirty;
 	int pinCount;
 	int refBit;
 	std::vector<char>* pageDisk;

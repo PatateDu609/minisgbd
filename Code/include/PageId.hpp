@@ -1,6 +1,8 @@
 #ifndef PAGEID_HPP
 #define PAGEID_HPP
 
+#include <iostream>
+
 struct PageId
 {
 	int FileIdx;
@@ -11,5 +13,7 @@ bool  operator<(const PageId& a, const PageId& b);
 bool  operator==(const PageId& a, const PageId& b); 
 bool  operator!=(const PageId& a, const PageId& b);
 bool  operator>(const PageId& a, const PageId& b);
+
+std::ostream& operator<<(std::ostream& oss, const PageId& pid);
 
 #endif

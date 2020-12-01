@@ -24,3 +24,10 @@ bool  operator!=(const PageId& a, const PageId& b) {
 bool  operator>(const PageId& a, const PageId& b) {
 	return (PageId&)b < a;
 } 
+
+std::ostream& operator<<(std::ostream& oss, const PageId& pid)
+{
+	oss << "File id : " << pid.FileIdx;
+	oss << ", Page id : " << pid.PageIdx << std::endl;
+	return oss;
+}
