@@ -39,5 +39,4 @@ int main()
 	// rel.NOMS.push_back("C4"); rel.TYPES.push_back("int");
 	// rel.NOMS.push_back("C5"); rel.TYPES.push_back("string17");
 	// Record rec(rel);
-
 }
