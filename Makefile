@@ -20,13 +20,14 @@ PATH_DB_TESTS		=	$(PATH_DB)/Tests
 #                              Name of sources files                           #
 ################################################################################
 
-SRCS_BASENAME		=	main		 	\
+SRCS_BASENAME		=	main			\
 						Operators		\
 						BufferManager	\
-						DBInfo		 	\
-						DBManager	 	\
-						DiskManager	 	\
-						Input		 	\
+						DBInfo			\
+						DBManager		\
+						DiskManager		\
+						Input			\
+						Record			\
 
 ################################################################################
 #                              Name of test files                              #

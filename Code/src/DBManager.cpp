@@ -38,7 +38,7 @@ void DBManager::processCommand(std::string COMMANDE){
 	if (HANDLERS.find(NAME) != HANDLERS.end()) // Vérifie que la commande NAME est bien présente dans le dictionnaire de fonctions
 		HANDLERS[NAME](ARGS); // Appel de la fonction correspondante à NAME dans le dictionnaire de fonctions
 	else
-		std::cout << "La commande " << COMMANDE << " n'existe pas !" << std::endl;
+		std::cerr << "ERREUR : La commande " << COMMANDE << " n'existe pas !" << std::endl;
 }
 
 void DBManager::createRelation(std::string ARGS){
@@ -51,7 +51,14 @@ void DBManager::createRelation(std::string ARGS){
 	{
 		ISS >> COL;
 		rel.NOMS.push_back(COL.substr(0, COL.find(":")));
-		rel.TYPES.push_back(COL.substr(COL.find(":") + 1, COL.length()));
+		std::string type = COL.substr(COL.find(":") + 1, COL.length());
+
+		if (type != "int" && type != "float" && type.find("string") != (size_t)0)
+		{
+			std::cerr << "ERREUR : type invalide" << std::endl;
+			return ;
+		}
+		rel.TYPES.push_back(type);
 	}
 	rel.NBRE_COLONNES = rel.NOMS.size();
 	std::cout << "Relation(" << rel.NOM_RELATION << "): ";

@@ -8,11 +8,12 @@
 #include <sstream>
 #include <string>
 #include <string.h>
+#include <unistd.h>
+#include <vector>
+
 #include <term.h>
 #include <termcap.h>
 #include <termio.h>
-#include <unistd.h>
-#include <vector>
 
 class Input
 {
