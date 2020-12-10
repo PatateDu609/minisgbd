@@ -1,23 +1,42 @@
 #ifndef DBINFO_HPP
 #define DBINFO_HPP
-#include <vector>
-#include "RelationInfo.hpp"
 
+#include <limits.h>
+#include <gtest/gtest.h>
+#include "RelationInfo.hpp"
+#include <boost/serialization/vector.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+
+class DBInfoTests;
 
 class DBInfo
 {
 private:
 	std::vector<RelationInfo> INFO;
-	int COMPTEUR;
 	static DBInfo* INSTANCE;
+	friend class boost::serialization::access;
 
+	template<class Archive>
+	void serialize(Archive &ar, const unsigned int version)
+	{
+		(void)version;
+		ar & INFO;
+	}
+
+	FRIEND_TEST(DBInfoTests, testNoFile);
+	FRIEND_TEST(DBInfoTests, testInitFinish);
+
+	DBInfo();
 public:
-	DBInfo(/* args */);
 	~DBInfo();
 
+	static DBInfo *getInstance();
+	static void resetInstance();
+	
 	void init();
 	void finish();
-	void addRelation(RelationInfo RELATION);
+	void addRelation(const RelationInfo& RELATION);
 };
 
 #endif

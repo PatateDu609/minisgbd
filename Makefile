@@ -37,14 +37,15 @@ TESTS_BASENAME		=	main			\
 						DiskManager		\
 						BufferManager	\
 						Record			\
+						DBInfo			\
 
 ################################################################################
 #                             Commands and arguments                           #
 ################################################################################
 RM					=	@rm -f
 GCC					=	@g++
-CFLAGS				=	-g -I$(PATH_INCLUDES)
-LDFLAGS				=	-L$(PATH_LIBS) -ltermcap -lgtest -lgtest_main -lpthread
+CFLAGS				=	-g -I$(PATH_INCLUDES) -Wall -Werror -Wextra
+LDFLAGS				=	-L$(PATH_LIBS) -ltermcap -lgtest -lgtest_main -lpthread -lboost_serialization
 LDFLAGS_TESTS		=	$(LDFLAGS)
 
 # DEBUG LDFLAGS :
@@ -113,7 +114,7 @@ clean:
 							$(RM) $(OBJS)
 
 fclean:						clean
-							$(RM) -r $(PATH_OBJS) $(PATH_LIBS)
+							$(RM) -r $(PATH_OBJS)
 
 enter_name:
 							@echo "\033[31mMaking \033[1m$(NAME)\033[0m"

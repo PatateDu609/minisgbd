@@ -29,7 +29,7 @@ BufferManager* BufferManager::getInstance()
 
 std::vector<char>* BufferManager::GetPage(const PageId& pageId)
 {
-	if(FRAMES.size() < DBParams::frameCount) {
+	if((int)FRAMES.size() < DBParams::frameCount) {
 		FRAMES[pageId] = new Frame;
 		FRAMES[pageId]->pageId = pageId;
 		FRAMES[pageId]->dirty = 0;

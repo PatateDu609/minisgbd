@@ -13,7 +13,7 @@ class Record
 private:
 	RelationInfo relInfo;
 	std::vector<std::string> values;
-	int sizeBuffered;
+	size_t sizeBuffered;
 
 	void setSizeBuffered();
 	int sizeofType(std::string type) const;

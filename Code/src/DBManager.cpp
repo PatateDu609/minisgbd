@@ -6,7 +6,7 @@
 DBManager* DBManager::INSTANCE = NULL;
 
 DBManager::DBManager(){
-	DB_INFO = new DBInfo();
+	DB_INFO = DBInfo::getInstance();
 
 	// Remplissage du dictionnaire de fonctions
 	HANDLERS.insert(std::make_pair("CREATEREL", DBManager::createRelation));

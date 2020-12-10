@@ -67,7 +67,7 @@ std::vector<std::string> createValues(RelationInfo rel){
 	};
 
 
-	for(int i = 0; i < rel.TYPES.size(); i++){
+	for(size_t i = 0; i < rel.TYPES.size(); i++){
 		switch (rel.TYPES[i][0])
 		{
 		case 'i':
@@ -110,13 +110,13 @@ TEST(RecordTests, testSizeofType)
 
 		case 'i':
 		{
-			EXPECT_EQ(record.sizeofType(str), sizeof(int));
+			EXPECT_EQ(record.sizeofType(str), (int)sizeof(int));
 			break;
 		}
 
 		case 'f':
 		{
-			EXPECT_EQ(record.sizeofType(str), sizeof(float));
+			EXPECT_EQ(record.sizeofType(str), (int)sizeof(float));
 			break;
 		}
 		}

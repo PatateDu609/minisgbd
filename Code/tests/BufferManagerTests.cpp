@@ -23,7 +23,6 @@ protected:
 
 void createRandFile(int idx, int nbrePages = 2)
 {
-	DiskManager *DM = DiskManager::getInstance();
 	idx = 0;
 	std::fstream file(getFilename(idx), std::ios::out);
 	for(int i = 0; i < nbrePages; i++){
@@ -118,7 +117,7 @@ TEST(BufferManagerTest, testEcriture){
 	auto frames = BM->getFrames();
 	EXPECT_EQ(*t1, std::vector<char>(DBParams::pageSize, 'a'));
 
-	for (int i = 0; i < t1->size(); i++)
+	for (size_t i = 0; i < t1->size(); i++)
 		t1->at(i) = '0';
 	std::vector<char> old = std::vector<char>(*t1);
 	EXPECT_EQ(old, *frames[id]->pageDisk);
@@ -126,7 +125,7 @@ TEST(BufferManagerTest, testEcriture){
 	id.PageIdx = 1;
 	t1 = BM->GetPage(id);
 	EXPECT_EQ(*t1, std::vector<char>(DBParams::pageSize, 'b')); 
-	for (int i = 0; i < t1->size(); i++)
+	for (size_t i = 0; i < t1->size(); i++)
 		t1->at(i) = '1';
 	std::vector<char> old1 = std::vector<char>(*t1);
 

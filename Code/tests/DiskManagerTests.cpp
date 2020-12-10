@@ -143,13 +143,13 @@ TEST(DiskManagerTest, testAddPageStandard)
 	int idx = 0;
 	bool valid = true;
 	char content[DBParams::pageSize];
-	size_t size;
+	int size;
 
 	std::fstream file(getFilename(idx), std::ios::out);
 	file.close();
 
 	pageId = DM->AddPage(idx);
-	size = sizeFile(getFilename(idx));
+	size = (int)sizeFile(getFilename(idx));
 	EXPECT_EQ(DBParams::pageSize, size);
 	EXPECT_EQ(pageId.FileIdx, 0);
 	EXPECT_EQ(pageId.PageIdx, 0);
@@ -330,7 +330,7 @@ TEST(DiskManagerTest, testWritePageStandard)
 		DM->WritePage(pageId, BUFFER);
 	}
 
-	ASSERT_EQ(sizeFile(getFilename(idx)), DBParams::pageSize * NEEDED);
+	ASSERT_EQ((int)sizeFile(getFilename(idx)), DBParams::pageSize * NEEDED);
 	file.open(getFilename(idx), std::ios::in);
 	int i;
 	for (int page = 0; page < NEEDED; page++)

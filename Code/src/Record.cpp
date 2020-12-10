@@ -35,7 +35,6 @@ void Record::setSizeBuffered()
 
 void Record::writeToBuffer(std::vector<char> &buff, size_t position)
 {
-	
 	if (buff.size() - position < sizeBuffered)
 	{
 		std::cerr << "ERREUR : la taille des données à écrire est trop grande pour l'espace disponible" << std::endl;
@@ -43,7 +42,7 @@ void Record::writeToBuffer(std::vector<char> &buff, size_t position)
 	}
 	const char *casted;
 	int size;
-	for (int i = 0; i < values.size(); i++)
+	for (size_t i = 0; i < values.size(); i++)
 	{
 		switch (relInfo.TYPES[i][0])
 		{
@@ -85,7 +84,7 @@ void Record::readFromBuffer(std::vector<char> buff, size_t position)
 	decltype(buff.begin()) it;
 	int size;
 	std::string value;
-	for (int i = 0; i < relInfo.NOMS.size(); i++)
+	for (size_t i = 0; i < relInfo.NOMS.size(); i++)
 	{
 		size = sizeofType(relInfo.TYPES[i]);
 		it = buff.begin() + position;

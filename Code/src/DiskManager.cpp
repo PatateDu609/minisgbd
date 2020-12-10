@@ -83,7 +83,7 @@ void DiskManager::ReadPage(PageId pageId, char buf[]){
 		std::cerr << "ERREUR : Le fichier Data_" << pageId.FileIdx << ".rf n'a pas pu être ouvert !" << std::endl;
 		return ;
 	}
-	size_t filesize = sizeFile(getFilename(pageId.FileIdx));
+	int filesize = (int)sizeFile(getFilename(pageId.FileIdx));
 
 	if (filesize <= pageId.PageIdx * DBParams::pageSize)
 	{
@@ -99,7 +99,7 @@ void DiskManager::ReadPage(PageId pageId, char buf[]){
 bool DiskManager::PageExists(PageId pageId) const{
 	if(fileExists(getFilename(pageId.FileIdx))) {
 		size_t fileSize = sizeFile(getFilename(pageId.FileIdx));
-		return (fileSize/DBParams::pageSize) > pageId.PageIdx;
+		return (int)(fileSize/DBParams::pageSize) > pageId.PageIdx;
 	} else return false;
 }
 
@@ -113,7 +113,7 @@ void DiskManager::WritePage(PageId pageId, char buf[]){
 	}
 	file.close();
 
-	size_t filesize = sizeFile(getFilename(pageId.FileIdx));
+	int filesize = (int)sizeFile(getFilename(pageId.FileIdx));
 	if (filesize <= pageId.PageIdx * DBParams::pageSize)
 	{
 		std::cerr << "ERREUR : La page demandée n'existe pas dans le fichier Data_" << pageId.FileIdx << ".rf !" << std::endl;

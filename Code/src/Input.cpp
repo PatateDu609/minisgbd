@@ -198,6 +198,8 @@ void Input::move_line(char *command)
 		tputs(CAPS["nd"], 1, ms_putchar);
 		CURSOR++;
 		break;
+	default:
+		break;
 	}
 }
 
@@ -225,12 +227,12 @@ void Input::ctrl_left()
 
 	pos--;
 	tputs(CAPS["le"], 1, ms_putchar);
-	while (!isalnum(BUFFER[pos]) && pos < BUFFER.length())
+	while (!isalnum(BUFFER[pos]) && pos < (int)BUFFER.length())
 	{
 		tputs(CAPS["le"], 1, ms_putchar);
 		pos--;
 	}
-	while (isalnum(BUFFER[pos]) && pos < BUFFER.length())
+	while (isalnum(BUFFER[pos]) && pos < (int)BUFFER.length())
 	{
 		tputs(CAPS["le"], 1, ms_putchar);
 		pos--;
@@ -284,7 +286,7 @@ void Input::loop_history(bool forward)
 		CURRENT_HIST = (CURRENT_HIST == -1) ? HISTORY.size() - 1 : std::max(CURRENT_HIST - 1, 0);
 	else if (CURRENT_HIST != -1)
 		CURRENT_HIST++;
-	if (CURRENT_HIST >= HISTORY.size())
+	if (CURRENT_HIST >= (int)HISTORY.size())
 		CURRENT_HIST = -1;
 	if (CURRENT_HIST == -1 && useHist)
 	{
