@@ -1,6 +1,5 @@
 #include <limits.h>
 #include <gtest/gtest.h>
-#include <cstdio>
 #include <fstream>
 #include <string>
 #include "DiskManager.hpp"

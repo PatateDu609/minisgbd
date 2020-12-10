@@ -36,6 +36,7 @@ SRCS_BASENAME		=	main			\
 TESTS_BASENAME		=	main			\
 						DiskManager		\
 						BufferManager	\
+						Record			\
 
 ################################################################################
 #                             Commands and arguments                           #
@@ -43,8 +44,8 @@ TESTS_BASENAME		=	main			\
 RM					=	@rm -f
 GCC					=	@g++
 CFLAGS				=	-g -I$(PATH_INCLUDES)
-LDFLAGS				=	-ltermcap
-LDFLAGS_TESTS		=	$(LDFLAGS) -lgtest -lgtest_main -lpthread
+LDFLAGS				=	-L$(PATH_LIBS) -ltermcap -lgtest -lgtest_main -lpthread
+LDFLAGS_TESTS		=	$(LDFLAGS)
 
 # DEBUG LDFLAGS :
 LDFLAGS				+=	-fsanitize=address -g

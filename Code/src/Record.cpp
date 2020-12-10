@@ -1,57 +1,66 @@
 #include "Record.hpp"
 #include <iostream>
+#include <iomanip>
 
-Record::Record(const RelationInfo& rel) : relInfo(rel), sizeBuffered(0)
+Record::Record(const RelationInfo &rel) : relInfo(rel), sizeBuffered(0)
 {
 	setSizeBuffered();
 }
 
 Record::~Record()
 {
-
 }
 
 int Record::sizeofType(std::string type) const
 {
 	switch (type[0])
-		{
-		case 's':
-			return std::stoi(type.substr(6));
-		case 'i':
-			return sizeof(int);
-		case 'f':
-			return sizeof(float);
-		}
+	{
+	case 's':
+		return std::stoi(type.substr(6));
+	case 'i':
+		return sizeof(int);
+	case 'f':
+		return sizeof(float);
+	default :
+		return 0;
+	}
 }
 
 void Record::setSizeBuffered()
 {
-	for (std::string type : relInfo.TYPES)
+	for (std::string type : relInfo.TYPES){
 		sizeBuffered += sizeofType(type);
+	}
 }
 
-void Record::writeToBuffer(std::vector<char>& buff, size_t position)
+void Record::writeToBuffer(std::vector<char> &buff, size_t position)
 {
-	if (buff.size() - position > sizeBuffered)
+	
+	if (buff.size() - position < sizeBuffered)
 	{
 		std::cerr << "ERREUR : la taille des données à écrire est trop grande pour l'espace disponible" << std::endl;
-		return ;
+		return;
 	}
-
-	const unsigned char *casted;
+	const char *casted;
 	int size;
 	for (int i = 0; i < values.size(); i++)
 	{
 		switch (relInfo.TYPES[i][0])
 		{
 		case 's':
-			casted = reinterpret_cast<const unsigned char *>(values[i].c_str());
+			casted = reinterpret_cast<const char *>(values[i].c_str());
 			break;
 		case 'i':
-			casted = reinterpret_cast<unsigned char *>(&values[i]);
+		{
+			int valint = std::stoi(values[i]);
+			casted = reinterpret_cast<const char *>(&valint);
+		}
 			break;
 		case 'f':
-			casted = reinterpret_cast<unsigned char *>(&values[i]);
+		{
+			float valfloat = std::stof(values[i]);
+			casted = reinterpret_cast<const char *>(&valfloat);
+		}
 			break;
 		}
 		size = sizeofType(relInfo.TYPES[i]);
@@ -65,10 +74,10 @@ void Record::writeToBuffer(std::vector<char>& buff, size_t position)
 
 void Record::readFromBuffer(std::vector<char> buff, size_t position)
 {
-	if (buff.size() - position > sizeBuffered)
+	if (buff.size() - position < sizeBuffered)
 	{
 		std::cerr << "ERREUR : Il n'y a pas assez de données pour constituer une entrée valide" << std::endl;
-		return ;
+		return;
 	}
 
 	values.clear();
@@ -80,29 +89,29 @@ void Record::readFromBuffer(std::vector<char> buff, size_t position)
 	{
 		size = sizeofType(relInfo.TYPES[i]);
 		it = buff.begin() + position;
-		for (int j = 0; j < size; j++, it++);
+		for (int j = 0; j < size; j++, it++)
+			;
 		raw = std::vector<char>(buff.begin() + position, it);
 		raw.push_back('\0');
 		position += size;
-		value = std::string(raw.data());
 
 		switch (relInfo.TYPES[i][0])
 		{
 		case 's':
-			values.push_back(value);
+			values.push_back(std::string(raw.data()));
 			break;
 		case 'i':
-			{
-				const int *valint = reinterpret_cast<const int *>(value.c_str());
-				values.push_back(std::to_string(*valint));
-			}
-			break;
+		{
+			const int *valint = reinterpret_cast<const int *>(raw.data());
+			values.push_back(std::to_string(*valint));
+		}
+		break;
 		case 'f':
-			{
-				const float *valfloat = reinterpret_cast<const float *>(value.c_str());
-				values.push_back(std::to_string(*valfloat));
-			}
-			break;
+		{
+			const float *valfloat = reinterpret_cast<const float *>(raw.data());
+			values.push_back(std::to_string(*valfloat));
+		}
+		break;
 		}
 	}
 }

@@ -11,12 +11,10 @@ class DiskManagerTest : public ::testing::Test
 protected:
 	virtual void setUp()
 	{
-
 	}
 
 	virtual void tearDown()
 	{
-
 	}
 };
 
@@ -227,13 +225,14 @@ TEST(DiskManagerTest, testReadPageStandard)
 	file.close();
 
 	char TEST[DBParams::pageSize];
-	PageId pageId = { .FileIdx = idx, 0 };
+	PageId pageId = {.FileIdx = idx, 0};
 	int i = 0;
 	for (int page = 0; page < NEEDED; page++)
 	{
 		pageId.PageIdx = page;
 		DM->ReadPage(pageId, TEST);
-		for (i = 0; i < DBParams::pageSize && BUFFERS[page][i] == TEST[i]; i++);
+		for (i = 0; i < DBParams::pageSize && BUFFERS[page][i] == TEST[i]; i++)
+			;
 		EXPECT_EQ(i, DBParams::pageSize);
 	}
 
@@ -247,7 +246,7 @@ TEST(DiskManagerTest, testReadPageWrongFile)
 {
 	DiskManager *DM = DiskManager::getInstance();
 	int fdx = 0;
-	PageId pageId = { .FileIdx = fdx, .PageIdx = 0 };
+	PageId pageId = {.FileIdx = fdx, .PageIdx = 0};
 
 	std::stringstream buffer;
 	std::streambuf *old = std::cerr.rdbuf(buffer.rdbuf());
@@ -337,7 +336,8 @@ TEST(DiskManagerTest, testWritePageStandard)
 	for (int page = 0; page < NEEDED; page++)
 	{
 		file.read(BUF, DBParams::pageSize);
-		for (i = 0; i < DBParams::pageSize && BUF[i] == BUFFERS[page][i]; i++);
+		for (i = 0; i < DBParams::pageSize && BUF[i] == BUFFERS[page][i]; i++)
+			;
 		EXPECT_EQ(i, DBParams::pageSize);
 	}
 	file.close();
@@ -351,7 +351,7 @@ TEST(DiskManagerTest, testWritePageWrongFile)
 {
 	DiskManager *DM = DiskManager::getInstance();
 	int fdx = 0;
-	PageId pageId = { .FileIdx = fdx, .PageIdx = 0 };
+	PageId pageId = {.FileIdx = fdx, .PageIdx = 0};
 
 	std::stringstream buffer;
 	std::streambuf *old = std::cerr.rdbuf(buffer.rdbuf());
@@ -404,4 +404,3 @@ TEST(DiskManagerTest, testWritePageWrongPage)
 	for (char *v : BUFFERS)
 		delete[] v;
 }
-
