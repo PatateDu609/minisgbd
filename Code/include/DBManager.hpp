@@ -9,7 +9,7 @@ class DBManager
 {
 private:
 	// Typedef sur le type de fonction de gestion des commandes
-	typedef void (*CommandHandler)(std::string);
+	typedef void (DBManager::*CommandHandler)(std::string);
 
 	static DBManager* INSTANCE;
 	DBInfo* DB_INFO;
@@ -17,7 +17,7 @@ private:
 	std::map<std::string, CommandHandler> HANDLERS;
 
 	// Fonctions à stocker dans le dictionnaire de fonctions des commandes
-	static void createRelation(std::string args);
+	void createRelation(std::string args);
 
 	DBManager();
 public:

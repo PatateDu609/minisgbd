@@ -9,7 +9,7 @@ DBManager::DBManager(){
 	DB_INFO = DBInfo::getInstance();
 
 	// Remplissage du dictionnaire de fonctions
-	HANDLERS.insert(std::make_pair("CREATEREL", DBManager::createRelation));
+	HANDLERS.insert(std::make_pair("CREATEREL", &DBManager::createRelation));
 }
 
 DBManager::~DBManager(){
@@ -32,11 +32,11 @@ void DBManager::finish(){
 
 void DBManager::processCommand(std::string COMMANDE){
 	std::size_t SPACE = COMMANDE.find(' ');
-	std::string NAME = COMMANDE.substr(0, COMMANDE.find(' '));
-	std::string ARGS = COMMANDE.substr(SPACE + 1, COMMANDE.length());
+	std::string NAME = COMMANDE.substr(0, SPACE);
+	std::string ARGS = COMMANDE.substr(SPACE + 1);
 
 	if (HANDLERS.find(NAME) != HANDLERS.end()) // Vérifie que la commande NAME est bien présente dans le dictionnaire de fonctions
-		HANDLERS[NAME](ARGS); // Appel de la fonction correspondante à NAME dans le dictionnaire de fonctions
+		(this->*HANDLERS[NAME])(ARGS); // Appel de la fonction correspondante à NAME dans le dictionnaire de fonctions
 	else
 		std::cerr << "ERREUR : La commande " << COMMANDE << " n'existe pas !" << std::endl;
 }
@@ -58,10 +58,17 @@ void DBManager::createRelation(std::string ARGS){
 			std::cerr << "ERREUR : type invalide" << std::endl;
 			return ;
 		}
+		if (type.find("string") == (size_t)0)
+		{
+			std::string size = type.substr(6);
+			if (size.empty() || !std::all_of(size.begin(), size.end(), isdigit))
+			{
+				std::cerr << "ERREUR : type invalide" << std::endl;
+				return ;
+			}
+		}
 		rel.TYPES.push_back(type);
 	}
 	rel.NBRE_COLONNES = rel.NOMS.size();
-	std::cout << "Relation(" << rel.NOM_RELATION << "): ";
-	for (int i = 0; i < rel.NBRE_COLONNES; i++)
-		std::cout << rel.NOMS[i] << "(" << rel.TYPES[i] << ")" << (i + 1 < rel.NBRE_COLONNES ? ", " : "\n");
+	DB_INFO->addRelation(rel);
 }
