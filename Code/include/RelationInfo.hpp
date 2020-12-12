@@ -13,6 +13,10 @@ struct RelationInfo
 	std::vector<std::string> TYPES;
 	std::vector<std::string> NOMS;
 
+	int fileIdx;
+	int recordSize;
+	int slotCount;
+
 	template <class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
@@ -25,5 +29,7 @@ struct RelationInfo
 };
 
 bool operator==(const RelationInfo& a, const RelationInfo& b);
+
+int getRelInfoSize(const RelationInfo& relInfo);
 
 #endif

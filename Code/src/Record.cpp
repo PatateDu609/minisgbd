@@ -2,35 +2,13 @@
 #include <iostream>
 #include <iomanip>
 
-Record::Record(const RelationInfo &rel) : relInfo(rel), sizeBuffered(0)
+Record::Record(const RelationInfo &rel) : relInfo(rel), sizeBuffered(getRelInfoSize(rel))
 {
-	setSizeBuffered();
+
 }
 
 Record::~Record()
 {
-}
-
-int Record::sizeofType(std::string type) const
-{
-	switch (type[0])
-	{
-	case 's':
-		return std::stoi(type.substr(6));
-	case 'i':
-		return sizeof(int);
-	case 'f':
-		return sizeof(float);
-	default :
-		return 0;
-	}
-}
-
-void Record::setSizeBuffered()
-{
-	for (std::string type : relInfo.TYPES){
-		sizeBuffered += sizeofType(type);
-	}
 }
 
 void Record::writeToBuffer(std::vector<char> &buff, size_t position)

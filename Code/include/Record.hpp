@@ -15,10 +15,7 @@ private:
 	std::vector<std::string> values;
 	size_t sizeBuffered;
 
-	void setSizeBuffered();
-	int sizeofType(std::string type) const;
 
-	
 	FRIEND_TEST(RecordTests, testSizeofType);
 	FRIEND_TEST(RecordTests, testWriteToBufferErreur);
 	FRIEND_TEST(RecordTests, testReadFromBufferErreur);
