@@ -25,6 +25,9 @@ public:
 
 	void writeToBuffer(std::vector<char> &buff, size_t position);
 	void readFromBuffer(const std::vector<char>& buff, size_t position);
+
+	std::vector<std::string> getValues() const;
+	void setValues(const std::vector<std::string>& values);
 };
 
 #endif

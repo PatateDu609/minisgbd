@@ -40,7 +40,7 @@ PageId HeapFile::addDataPage()
 
 	std::vector<char> idv(header->begin(), header->begin() + 4);
 	int id = *(reinterpret_cast<const int *>(idv.data()));
-	
+
 	id++;
 
 	if (id > DBParams::pageSize / 4)
@@ -85,14 +85,14 @@ PageId HeapFile::getFreeDataPageId()
 	return (PageId){.FileIdx = -1, .PageIdx = -1};
 }
 
-Rid HeapFile::writeRecordToDataPage(const Record& rc, const PageId& pageId)
+Rid HeapFile::writeRecordToDataPage(Record& rc, const PageId& pageId)
 {
 	BufferManager *BM = BufferManager::getInstance();
 	std::vector<char> *header = loadHeader(BM);
 
-	std::vector<char> idv(header->begin() + (pageId->PageIdx * 4), header->begin() + (pageId->PageIdx * 4) + 4);
+	std::vector<char> idv(header->begin() + (pageId.PageIdx * 4), header->begin() + (pageId.PageIdx * 4) + 4);
 	int DPi = *(reinterpret_cast<const int *>(idv.data()));
-	
+
 	std::vector<char> *raw = BM->GetPage(pageId);
 	if (raw == NULL)
 		raw = BM->GetPage(pageId);
@@ -102,7 +102,64 @@ Rid HeapFile::writeRecordToDataPage(const Record& rc, const PageId& pageId)
 	DPi--;
 	const char *DPic = reinterpret_cast<const char *>(&DPi);
 	for (int i = 0; i < 4; i++)
-		header[pageId->pageIdx * 4 + i] = DPic[i];
+		header->at(pageId.PageIdx * 4 + i) = DPic[i];
+	freeHeader(BM, true);
 
-	return (Rid){ .pageId = pageId, .slotIdx = relInfo.slotCount - DPi };
+	return (Rid){ .pageId = pageId, .slotIdx = relInfo.slotCount - DPi - 1 };
+}
+
+std::vector<Record> HeapFile::getRecordsInDataPage(const PageId& pageId)
+{
+	BufferManager *BM = BufferManager::getInstance();
+
+	std::vector<char> *header = loadHeader(BM);
+	std::vector<char> idv(header->begin() + (pageId.PageIdx * 4), header->begin() + (pageId.PageIdx * 4) + 4);
+	int DPi = *(reinterpret_cast<const int *>(idv.data()));
+	freeHeader(BM, false);
+
+	std::vector<char> *raw = BM->GetPage(pageId);
+	if (raw == NULL)
+		raw = BM->GetPage(pageId);
+
+	std::vector<Record> records;
+	for (int i = 0; i < relInfo.slotCount - DPi; i++)
+	{
+		int position = i * relInfo.recordSize;
+		Record rc(relInfo);
+		rc.readFromBuffer(*raw, position);
+		records.push_back(rc);
+	}
+	BM->FreePage(pageId, false);
+	return records;
+}
+
+Rid HeapFile::InsertRecord(Record& rc)
+{
+	PageId pid = getFreeDataPageId();
+
+	if (pid.FileIdx == -1 || pid.PageIdx == -1)
+		pid = addDataPage();
+	writeRecordToDataPage(rc, pid);
+}
+
+std::vector<Record> HeapFile::GetAllRecords()
+{
+	BufferManager *BM = BufferManager::getInstance();
+	DiskManager *DM = DiskManager::getInstance();
+	PageId result = DM->AddPage(relInfo.fileIdx);
+	std::vector<char> *header = loadHeader(BM);
+
+	std::vector<char> idv(header->begin(), header->begin() + 4);
+	int id = *(reinterpret_cast<const int *>(idv.data()));
+	freeHeader(BM, false);
+
+	std::vector<Record> records, pageRecords;
+	PageId pid{ .FileIdx = relInfo.fileIdx, .PageIdx = 0 };
+	for (int i = 0; i < id; i++)
+	{
+		pid.PageIdx = i;
+		pageRecords = getRecordsInDataPage(pid);
+		records.insert(records.end(), pageRecords.begin(), pageRecords.end());
+	}
+	return records;
 }

@@ -32,13 +32,11 @@ TEST(DBInfoTests, testInitFinish)
 {
 	remove((DBParams::DBPath + "Catalog.def").c_str());
 	DBInfo *DI = DBInfo::getInstance();
-	std::vector<RelationInfo> infos;
-
 
 	int n = 10;
 	for (int i = 0; i < n; i++)
 		DI->addRelation(createRelation(10));
-	infos = DI->INFO;
+	std::vector<RelationInfo> infos(DI->INFO);
 	DI->finish();
 	DBInfo::resetInstance();
 

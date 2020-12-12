@@ -21,7 +21,7 @@ private:
 	void createNewOnDisk();
 	PageId addDataPage();
 	PageId getFreeDataPageId();
-	Rid writeRecordToDataPage(const Record& rc, const PageId& pageId);
+	Rid writeRecordToDataPage(Record& rc, const PageId& pageId);
 	std::vector<Record> getRecordsInDataPage(const PageId& pageId);
 
 	FRIEND_TEST(HeapFileTests, testCreateNewOnDisk);
@@ -30,10 +30,12 @@ private:
 	FRIEND_TEST(HeapFileTests, testGetFreeDataPageIdLast);
 	FRIEND_TEST(HeapFileTests, testGetFreeDataPageIdRandom);
 	FRIEND_TEST(HeapFileTests, testWriteRecordToDataPage);
+	FRIEND_TEST(HeapFileTests, testGetRecordsInDataPageEmptyPage);
+	FRIEND_TEST(HeapFileTests, testGetRecordsInDataPage);
 
 public:
 	HeapFile(const RelationInfo& rel);
-	Rid InsertRecord(Record rc);
+	Rid InsertRecord(Record& rc);
 	std::vector<Record> GetAllRecords();
 };
 

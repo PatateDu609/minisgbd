@@ -91,3 +91,14 @@ void Record::readFromBuffer(const std::vector<char>& buff, size_t position)
 		}
 	}
 }
+
+std::vector<std::string> Record::getValues() const
+{
+	return values;
+}
+
+void Record::setValues(const std::vector<std::string>& values)
+{
+	if (values.size() == this->values.size())
+		this->values = values;
+}
