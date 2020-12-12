@@ -2,6 +2,7 @@
 #include <sstream>
 #include "DBManager.hpp"
 #include "DBInfo.hpp"
+#include "DBParams.hpp"
 
 DBManager* DBManager::INSTANCE = NULL;
 
@@ -95,5 +96,8 @@ void DBManager::createRelation(std::string ARGS){
 		rel.TYPES.push_back(type);
 	}
 	rel.NBRE_COLONNES = rel.NOMS.size();
+	rel.recordSize = getRelInfoSize(rel);
+	rel.fileIdx = DB_INFO->getCompteur();
+	rel.slotCount = DBParams::pageSize / rel.recordSize;
 	DB_INFO->addRelation(rel);
 }

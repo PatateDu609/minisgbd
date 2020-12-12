@@ -4,8 +4,8 @@
 #include "DBParams.hpp"
 
 
-int DBParams::pageSize = 4;
-int DBParams::frameCount =2;
+int DBParams::pageSize = 4096;
+int DBParams::frameCount = 2;
 std::string DBParams::DBPath = "DB/Tests/";
 
 int main(int ac, char **av)

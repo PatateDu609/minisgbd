@@ -2,9 +2,8 @@
 #include <iostream>
 #include <iomanip>
 
-Record::Record(const RelationInfo &rel) : relInfo(rel), sizeBuffered(getRelInfoSize(rel))
+Record::Record(const RelationInfo &rel) : relInfo(rel)
 {
-
 }
 
 Record::~Record()
@@ -13,7 +12,7 @@ Record::~Record()
 
 void Record::writeToBuffer(std::vector<char> &buff, size_t position)
 {
-	if (buff.size() - position < sizeBuffered)
+	if (buff.size() - position < (size_t)relInfo.recordSize)
 	{
 		std::cerr << "ERREUR : la taille des données à écrire est trop grande pour l'espace disponible" << std::endl;
 		return;
@@ -49,9 +48,9 @@ void Record::writeToBuffer(std::vector<char> &buff, size_t position)
 	}
 }
 
-void Record::readFromBuffer(std::vector<char> buff, size_t position)
+void Record::readFromBuffer(const std::vector<char>& buff, size_t position)
 {
-	if (buff.size() - position < sizeBuffered)
+	if (buff.size() - position < (size_t)relInfo.recordSize)
 	{
 		std::cerr << "ERREUR : Il n'y a pas assez de données pour constituer une entrée valide" << std::endl;
 		return;

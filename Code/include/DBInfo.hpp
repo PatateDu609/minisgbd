@@ -37,6 +37,7 @@ public:
 	void init();
 	void finish();
 	void addRelation(const RelationInfo& RELATION);
+	int getCompteur() const;
 };
 
 #endif

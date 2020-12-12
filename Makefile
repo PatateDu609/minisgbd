@@ -28,6 +28,7 @@ SRCS_BASENAME		=	main			\
 						DiskManager		\
 						Input			\
 						Record			\
+						HeapFile		\
 
 ################################################################################
 #                              Name of test files                              #
@@ -38,6 +39,7 @@ TESTS_BASENAME		=	main			\
 						BufferManager	\
 						Record			\
 						DBInfo			\
+						HeapFile		\
 
 ################################################################################
 #                             Commands and arguments                           #

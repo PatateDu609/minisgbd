@@ -43,3 +43,8 @@ void DBInfo::addRelation(const RelationInfo &RELATION)
 {
 	INFO.push_back(RELATION);
 }
+
+int DBInfo::getCompteur() const
+{
+	return INFO.size();
+}

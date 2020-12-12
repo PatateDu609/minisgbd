@@ -6,6 +6,7 @@
 #include <ctime>
 #include <cstdlib>
 #include "Record.hpp"
+#include "DBParams.hpp"
 #include <boost/random.hpp>
 
 class RecordTests : public ::testing ::Test
@@ -50,6 +51,9 @@ RelationInfo createRelation(int n)
 	}
 
 	relInfo.TYPES = types;
+	relInfo.recordSize = getRelInfoSize(relInfo);
+	relInfo.fileIdx = 0;
+	relInfo.slotCount = relInfo.recordSize / DBParams::pageSize;
 	return relInfo;
 }
 
@@ -94,7 +98,6 @@ TEST(RecordTests, testSizeofType)
 	std::srand(std::time(nullptr));
 	int n = 10;
 	RelationInfo relInfo = createRelation(n);
-	Record record(relInfo);
 
 	for (int i = 0; i < n; i++)
 	{
@@ -104,19 +107,19 @@ TEST(RecordTests, testSizeofType)
 		{
 		case 's':
 		{
-			EXPECT_EQ(record.sizeofType(str), std::stoi(str.substr(6)));
+			EXPECT_EQ(sizeofType(str), std::stoi(str.substr(6)));
 			break;
 		}
 
 		case 'i':
 		{
-			EXPECT_EQ(record.sizeofType(str), (int)sizeof(int));
+			EXPECT_EQ(sizeofType(str), (int)sizeof(int));
 			break;
 		}
 
 		case 'f':
 		{
-			EXPECT_EQ(record.sizeofType(str), (int)sizeof(float));
+			EXPECT_EQ(sizeofType(str), (int)sizeof(float));
 			break;
 		}
 		}
@@ -141,8 +144,10 @@ TEST(RecordTests, testWriteToBufferErreur)
 	relInfo.NOMS.push_back("NomColonne5");
 	relInfo.TYPES.push_back("string8");
 
+	relInfo.recordSize = getRelInfoSize(relInfo);
+
 	Record rec(relInfo);
-	int size = rec.sizeBuffered;
+	int size = relInfo.recordSize;
 	std::vector<char> buffer(1000);
 
 	std::stringstream buf;
@@ -184,8 +189,10 @@ TEST(RecordTests, testReadFromBufferErreur)
 	relInfo.NOMS.push_back("NomColonne5");
 	relInfo.TYPES.push_back("string8");
 
+	relInfo.recordSize = getRelInfoSize(relInfo);
+
 	Record rec(relInfo);
-	int size = rec.sizeBuffered;
+	int size = relInfo.recordSize;
 	std::vector<char> buffer(1000);
 
 	std::stringstream buf;
@@ -233,7 +240,7 @@ TEST(RecordTests, testRWBuffer)
 		std::vector<std::string> values = createValues(rel);
 		rec.values = values;
 
-		int pos = randint(0, buffer.size() - rec.sizeBuffered);
+		int pos = randint(0, buffer.size() - rel.recordSize);
 		rec.writeToBuffer(buffer, pos);
 		rec.readFromBuffer(buffer, pos);
 		EXPECT_EQ(values, rec.values);

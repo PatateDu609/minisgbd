@@ -28,8 +28,10 @@ struct RelationInfo
 	}
 };
 
+
 bool operator==(const RelationInfo& a, const RelationInfo& b);
 
+int sizeofType(std::string type);
 int getRelInfoSize(const RelationInfo& relInfo);
 
 #endif

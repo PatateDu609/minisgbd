@@ -9,11 +9,12 @@ BufferManager::BufferManager() : DM(NULL)
 }
 
 BufferManager::~BufferManager(){
-	for(decltype(FRAMES)::iterator it = FRAMES.begin(); it!=FRAMES.end(); it++){
+	for(decltype(FRAMES)::iterator it = FRAMES.begin(); it != FRAMES.end(); it++){
 		delete it->second->pageDisk;
 		it->second->pageDisk = NULL;
 		delete it->second;
 	}
+	DiskManager::resetInstance();
 }
 
 void BufferManager::resetInstance(){
@@ -29,7 +30,11 @@ BufferManager* BufferManager::getInstance()
 
 std::vector<char>* BufferManager::GetPage(const PageId& pageId)
 {
-	if((int)FRAMES.size() < DBParams::frameCount) {
+	if(FRAMES.find(pageId) != FRAMES.end()){
+		FRAMES[pageId]->dirty = 0;
+		FRAMES[pageId]->pinCount = 1;
+		return FRAMES[pageId]->pageDisk;
+	} else if((int)FRAMES.size() < DBParams::frameCount) {
 		FRAMES[pageId] = new Frame;
 		FRAMES[pageId]->pageId = pageId;
 		FRAMES[pageId]->dirty = 0;
@@ -37,10 +42,6 @@ std::vector<char>* BufferManager::GetPage(const PageId& pageId)
 		FRAMES[pageId]->refBit = 0;
 		FRAMES[pageId]->pageDisk = new std::vector<char>(DBParams::pageSize);
 		DM->ReadPage(pageId, FRAMES[pageId]->pageDisk->data());
-		return FRAMES[pageId]->pageDisk;
-	} else if(FRAMES.find(pageId) != FRAMES.end()){
-		FRAMES[pageId]->dirty = 0;
-		FRAMES[pageId]->pinCount = 1;
 		return FRAMES[pageId]->pageDisk;
 	}
 	else
