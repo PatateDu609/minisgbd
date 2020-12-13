@@ -1,15 +1,18 @@
 #include "BufferManager.hpp"
 #include <iostream>
+#include <fstream>
 
-BufferManager* BufferManager :: INSTANCE = NULL;
+BufferManager *BufferManager ::INSTANCE = NULL;
 
 BufferManager::BufferManager() : DM(NULL)
 {
 	DM = DiskManager::getInstance();
 }
 
-BufferManager::~BufferManager(){
-	for(decltype(FRAMES)::iterator it = FRAMES.begin(); it != FRAMES.end(); it++){
+BufferManager::~BufferManager()
+{
+	for (decltype(FRAMES)::iterator it = FRAMES.begin(); it != FRAMES.end(); it++)
+	{
 		delete it->second->pageDisk;
 		it->second->pageDisk = NULL;
 		delete it->second;
@@ -17,24 +20,30 @@ BufferManager::~BufferManager(){
 	DiskManager::resetInstance();
 }
 
-void BufferManager::resetInstance(){
-	if (INSTANCE) delete INSTANCE;
+void BufferManager::resetInstance()
+{
+	if (INSTANCE)
+		delete INSTANCE;
 	INSTANCE = NULL;
 }
 
-BufferManager* BufferManager::getInstance()
+BufferManager *BufferManager::getInstance()
 {
-	if (!INSTANCE) INSTANCE = new BufferManager();
+	if (!INSTANCE)
+		INSTANCE = new BufferManager();
 	return INSTANCE;
 }
 
-std::vector<char>* BufferManager::GetPage(const PageId& pageId)
+std::vector<char> *BufferManager::GetPage(const PageId &pageId)
 {
-	if(FRAMES.find(pageId) != FRAMES.end()){
+	if (FRAMES.find(pageId) != FRAMES.end())
+	{
 		FRAMES[pageId]->dirty = 0;
 		FRAMES[pageId]->pinCount = 1;
 		return FRAMES[pageId]->pageDisk;
-	} else if((int)FRAMES.size() < DBParams::frameCount) {
+	}
+	else if ((int)FRAMES.size() < DBParams::frameCount)
+	{
 		FRAMES[pageId] = new Frame;
 		FRAMES[pageId]->pageId = pageId;
 		FRAMES[pageId]->dirty = 0;
@@ -48,11 +57,14 @@ std::vector<char>* BufferManager::GetPage(const PageId& pageId)
 	{
 		Frame *replacementFrame = nullptr;
 		decltype(FRAMES)::iterator it;
-		for(it = FRAMES.begin(); it != FRAMES.end(); it++){
-			if(it->second->pinCount==0 && it->second->refBit==1) it->second->refBit=0;
-			else if(it->second->pinCount==0 && it->second->refBit==0) {
-				replacementFrame=it->second;
-				break ;
+		for (it = FRAMES.begin(); it != FRAMES.end(); it++)
+		{
+			if (it->second->pinCount == 0 && it->second->refBit == 1)
+				it->second->refBit = 0;
+			else if (it->second->pinCount == 0 && it->second->refBit == 0)
+			{
+				replacementFrame = it->second;
+				break;
 			}
 		}
 		if (!replacementFrame)
@@ -72,7 +84,7 @@ std::vector<char>* BufferManager::GetPage(const PageId& pageId)
 	}
 }
 
-void BufferManager::FreePage(const PageId& pageId, bool valdirty)
+void BufferManager::FreePage(const PageId &pageId, bool valdirty)
 {
 	FRAMES[pageId]->dirty = valdirty;
 	FRAMES[pageId]->pinCount = 0;
@@ -80,6 +92,10 @@ void BufferManager::FreePage(const PageId& pageId, bool valdirty)
 	auto tmp = FRAMES[pageId]->pageDisk;
 	FRAMES[pageId]->pageDisk = new std::vector<char>(*tmp);
 	delete tmp;
+
+	std::ofstream file("dump", std::ios::binary | std::ios::trunc);
+	file.write(FRAMES[pageId]->pageDisk->data(), FRAMES[pageId]->pageDisk->size());
+	file.close();
 }
 
 void BufferManager::FlushAll()
@@ -94,10 +110,12 @@ void BufferManager::FlushAll()
 	FRAMES.clear();
 }
 
-std::map<PageId, Frame*> BufferManager::getFrames() const{
+std::map<PageId, Frame *> BufferManager::getFrames() const
+{
 	return FRAMES;
 }
 
-void BufferManager::setFrames(const std::map<PageId, Frame*>& frames) {
+void BufferManager::setFrames(const std::map<PageId, Frame *> &frames)
+{
 	FRAMES = frames;
 }

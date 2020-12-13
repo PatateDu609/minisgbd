@@ -57,28 +57,28 @@ RelationInfo createRelation(int n)
 	return relInfo;
 }
 
-std::vector<std::string> createValues(RelationInfo rel){
+std::vector<std::string> createValues(RelationInfo rel)
+{
 	std::vector<std::string> values;
-
 
 	auto randchar = []() -> char {
 		const char charset[] = "0123456789"
-		"abcdefghijklmnopqrstuvwxyz"
-		"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+							   "abcdefghijklmnopqrstuvwxyz"
+							   "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 		const size_t max_index = sizeof(charset) - 1;
 		return charset[std::rand() % max_index];
 	};
 
-
-	for(size_t i = 0; i < rel.TYPES.size(); i++){
+	for (size_t i = 0; i < rel.TYPES.size(); i++)
+	{
 		switch (rel.TYPES[i][0])
 		{
 		case 'i':
 			values.push_back(std::to_string(std::rand() % 1000));
 			break;
 		case 'f':
-			values.push_back(std::to_string(static_cast<float> (std::rand()) / static_cast<float> (RAND_MAX / 1000)));
+			values.push_back(std::to_string(static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX / 1000)));
 			break;
 		case 's':
 		{
@@ -87,7 +87,7 @@ std::vector<std::string> createValues(RelationInfo rel){
 			std::generate_n(str.begin(), size, randchar);
 			values.push_back(str);
 		}
-			break;
+		break;
 		}
 	}
 	return values;
@@ -222,12 +222,11 @@ TEST(RecordTests, testReadFromBufferErreur)
 TEST(RecordTests, testRWBuffer)
 {
 	std::srand(std::time(nullptr));
-	auto randint = [](int A, int B) -> int
-	{
-		int r = (rand()%(B-A)) + A;
+	auto randint = [](int A, int B) -> int {
+		int r = (rand() % (B - A)) + A;
 		return r;
 	};
-	
+
 	int iterator = 25;
 	RelationInfo rel;
 	std::vector<char> buffer(1010);

@@ -33,11 +33,13 @@ public:
 
 	static DBInfo *getInstance();
 	static void resetInstance();
-	
+
 	void init();
 	void finish();
 	void addRelation(const RelationInfo& RELATION);
 	int getCompteur() const;
+	std::vector<RelationInfo> getInfo() const;
+	void reset();
 };
 
 #endif

@@ -21,6 +21,7 @@ void Record::writeToBuffer(std::vector<char> &buff, size_t position)
 	int size;
 	for (size_t i = 0; i < values.size(); i++)
 	{
+		size = sizeofType(relInfo.TYPES[i]);
 		switch (relInfo.TYPES[i][0])
 		{
 		case 's':
@@ -39,7 +40,6 @@ void Record::writeToBuffer(std::vector<char> &buff, size_t position)
 		}
 			break;
 		}
-		size = sizeofType(relInfo.TYPES[i]);
 		for (int j = 0; j < size; j++)
 		{
 			buff[position] = casted[j];
@@ -99,7 +99,7 @@ std::vector<std::string> Record::getValues() const
 
 void Record::setValues(const std::vector<std::string>& values)
 {
-	if (values.size() == this->values.size())
+	if (values.size() == this->values.size() || this->values.empty())
 		this->values = values;
 }
 

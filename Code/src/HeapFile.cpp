@@ -24,12 +24,12 @@ std::vector<char> *HeapFile::loadHeader(BufferManager *BM)
 	return header;
 }
 
-void HeapFile::freeHeader(BufferManager *BM, bool dirty){
+void HeapFile::freeHeader(BufferManager *BM, bool dirty)
+{
 	BM = BufferManager::getInstance();
 	PageId headerId = {.FileIdx = relInfo.fileIdx, .PageIdx = 0};
 	BM->FreePage(headerId, dirty);
 }
-
 
 PageId HeapFile::addDataPage()
 {
@@ -56,7 +56,7 @@ PageId HeapFile::addDataPage()
 	for (int i = 0; i < 4; i++)
 	{
 		header->at(i) = idc[i];
-		header->at(i + id + 1) = DPic[i];
+		header->at(i + id * 4) = DPic[i];
 	}
 	freeHeader(BM, true);
 
@@ -85,7 +85,7 @@ PageId HeapFile::getFreeDataPageId()
 	return (PageId){.FileIdx = -1, .PageIdx = -1};
 }
 
-Rid HeapFile::writeRecordToDataPage(Record& rc, const PageId& pageId)
+Rid HeapFile::writeRecordToDataPage(Record &rc, const PageId &pageId)
 {
 	BufferManager *BM = BufferManager::getInstance();
 	std::vector<char> *header = loadHeader(BM);
@@ -97,6 +97,7 @@ Rid HeapFile::writeRecordToDataPage(Record& rc, const PageId& pageId)
 	if (raw == NULL)
 		raw = BM->GetPage(pageId);
 	rc.writeToBuffer(*raw, (relInfo.slotCount - DPi) * relInfo.recordSize);
+
 	BM->FreePage(pageId, true);
 
 	DPi--;
@@ -105,10 +106,10 @@ Rid HeapFile::writeRecordToDataPage(Record& rc, const PageId& pageId)
 		header->at(pageId.PageIdx * 4 + i) = DPic[i];
 	freeHeader(BM, true);
 
-	return (Rid){ .pageId = pageId, .slotIdx = relInfo.slotCount - DPi - 1 };
+	return (Rid){.pageId = pageId, .slotIdx = relInfo.slotCount - DPi - 1};
 }
 
-std::vector<Record> HeapFile::getRecordsInDataPage(const PageId& pageId)
+std::vector<Record> HeapFile::getRecordsInDataPage(const PageId &pageId)
 {
 	BufferManager *BM = BufferManager::getInstance();
 
@@ -133,10 +134,9 @@ std::vector<Record> HeapFile::getRecordsInDataPage(const PageId& pageId)
 	return records;
 }
 
-Rid HeapFile::InsertRecord(Record& rc)
+Rid HeapFile::InsertRecord(Record &rc)
 {
 	PageId pid = getFreeDataPageId();
-
 	if (pid.FileIdx == -1 || pid.PageIdx == -1)
 		pid = addDataPage();
 	return writeRecordToDataPage(rc, pid);
@@ -152,7 +152,7 @@ std::vector<Record> HeapFile::GetAllRecords()
 	freeHeader(BM, false);
 
 	std::vector<Record> records, pageRecords;
-	PageId pid{ .FileIdx = relInfo.fileIdx, .PageIdx = 0 };
+	PageId pid{.FileIdx = relInfo.fileIdx, .PageIdx = 0};
 	for (int i = 1; i <= id; i++)
 	{
 		pid.PageIdx = i;

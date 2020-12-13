@@ -29,6 +29,9 @@ SRCS_BASENAME		=	main			\
 						Input			\
 						Record			\
 						HeapFile		\
+						FileManager		\
+						RelationInfo	\
+						parser			\
 
 ################################################################################
 #                              Name of test files                              #
@@ -40,6 +43,7 @@ TESTS_BASENAME		=	main			\
 						Record			\
 						DBInfo			\
 						HeapFile		\
+						parser			\
 
 ################################################################################
 #                             Commands and arguments                           #

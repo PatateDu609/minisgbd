@@ -124,7 +124,6 @@ void DiskManager::WritePage(PageId pageId, char buf[]){
 
 	char BUFFER[filesize];
 	file.read(BUFFER, filesize);
-	// std::cout << "END" << std::endl;
 	memcpy(BUFFER + pageId.PageIdx * DBParams::pageSize, buf, DBParams::pageSize);
 	file.close();
 	file.open(getFilename(pageId.FileIdx), std::ios::trunc | std::ios::out);

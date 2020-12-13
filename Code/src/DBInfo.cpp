@@ -48,3 +48,13 @@ int DBInfo::getCompteur() const
 {
 	return INFO.size();
 }
+
+std::vector<RelationInfo> DBInfo::getInfo() const
+{
+	return INFO;
+}
+
+void DBInfo::reset()
+{
+	INFO.clear();
+}

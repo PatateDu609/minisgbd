@@ -13,25 +13,29 @@ struct RelationInfo
 	std::vector<std::string> TYPES;
 	std::vector<std::string> NOMS;
 
+	~RelationInfo()
+	{
+	}
+
 	int fileIdx;
 	int recordSize;
 	int slotCount;
 
 	template <class Archive>
-	void serialize(Archive & ar, const unsigned int version)
+	void serialize(Archive &ar, const unsigned int version)
 	{
 		(void)version;
-		ar & NOM_RELATION;
-		ar & TYPES;
-		ar & NOMS;
+		ar &NOM_RELATION;
+		ar &TYPES;
+		ar &NOMS;
 		NBRE_COLONNES = NOMS.size();
 	}
 };
 
-
-bool operator==(const RelationInfo& a, const RelationInfo& b);
+bool operator==(const RelationInfo &a, const RelationInfo &b);
+bool operator==(const RelationInfo &rel, const std::string &name);
 
 int sizeofType(std::string type);
-int getRelInfoSize(const RelationInfo& relInfo);
+int getRelInfoSize(const RelationInfo &relInfo);
 
 #endif

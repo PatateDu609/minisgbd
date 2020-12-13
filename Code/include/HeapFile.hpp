@@ -8,12 +8,13 @@
 #include "Record.hpp"
 #include <vector>
 
-class HeapFileTests;
-
 class HeapFile
 {
 private:
-	RelationInfo& relInfo;
+	friend class FileManager;
+	friend struct HeapFileRelInfoComparator;
+
+	RelationInfo relInfo;
 
 	std::vector<char> *loadHeader(BufferManager *BM);
 	void freeHeader(BufferManager *BM, bool dirty);
@@ -21,8 +22,8 @@ private:
 	void createNewOnDisk();
 	PageId addDataPage();
 	PageId getFreeDataPageId();
-	Rid writeRecordToDataPage(Record& rc, const PageId& pageId);
-	std::vector<Record> getRecordsInDataPage(const PageId& pageId);
+	Rid writeRecordToDataPage(Record &rc, const PageId &pageId);
+	std::vector<Record> getRecordsInDataPage(const PageId &pageId);
 
 	FRIEND_TEST(HeapFileTests, testCreateNewOnDisk);
 	FRIEND_TEST(HeapFileTests, testAddDataPage);
@@ -37,9 +38,9 @@ private:
 	FRIEND_TEST(HeapFileTests, testGetAllRecords);
 
 public:
-	HeapFile(RelationInfo& rel);
+	HeapFile(RelationInfo &rel);
 
-	Rid InsertRecord(Record& rc);
+	Rid InsertRecord(Record &rc);
 	std::vector<Record> GetAllRecords();
 };
 

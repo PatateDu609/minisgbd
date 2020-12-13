@@ -16,27 +16,25 @@ int DBParams::frameCount =2;
 
 int main()
 {
-	// Input *input = Input::getInstance("");
+	Input *input = Input::getInstance("");
 
-	// DBManager* DBM = DBManager::getInstance();
-	// std::string COMMANDE = "";
+	DBManager* DBM = DBManager::getInstance();
+	std::string COMMANDE = "";
 
-	// DBM->init();
-	// while (COMMANDE != "EXIT"){
-	// 	COMMANDE = input->getline();
-	// 	input->addCommand(COMMANDE);
-	// 	if(COMMANDE.length() && COMMANDE != "EXIT") DBM->processCommand(COMMANDE);
-	// }
-	// input->saveHistory();
-	// DBM->finish();
-	// delete input;
-	// delete DBM;
+	DBM->init();
+	while (COMMANDE != "EXIT"){
+		COMMANDE = input->getline();
+		input->addCommand(COMMANDE);
+		if(COMMANDE.length() && COMMANDE != "EXIT") DBM->processCommand(COMMANDE);
+	}
+	input->saveHistory();
+	DBM->finish();
+	delete input;
+	delete DBM;
 
-	std::vector<char> vec(566, 2);
-
-	std::vector<char> idv(vec.begin(), vec.begin() + 4);
-	const int id = *(reinterpret_cast<const int *>(idv.data()));
-	std::cout << "id = " << id << std::endl;
+	BufferManager::resetInstance();
+	DiskManager::resetInstance();
+	FileManager::resetInstance();
 
 	return (0);
 }
