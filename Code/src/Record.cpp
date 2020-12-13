@@ -2,7 +2,7 @@
 #include <iostream>
 #include <iomanip>
 
-Record::Record(const RelationInfo &rel) : relInfo(rel)
+Record::Record(RelationInfo &rel) : relInfo(rel)
 {
 }
 
@@ -101,4 +101,11 @@ void Record::setValues(const std::vector<std::string>& values)
 {
 	if (values.size() == this->values.size())
 		this->values = values;
+}
+
+Record& Record::operator=(const Record& other)
+{
+	this->values = other.values;
+	this->relInfo = other.relInfo;
+	return *this;
 }

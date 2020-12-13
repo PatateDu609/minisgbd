@@ -2,7 +2,7 @@
 #include "DiskManager.hpp"
 #include "BufferManager.hpp"
 
-HeapFile::HeapFile(const RelationInfo &rel) : relInfo(rel)
+HeapFile::HeapFile(RelationInfo &rel) : relInfo(rel)
 {
 }
 
@@ -139,14 +139,12 @@ Rid HeapFile::InsertRecord(Record& rc)
 
 	if (pid.FileIdx == -1 || pid.PageIdx == -1)
 		pid = addDataPage();
-	writeRecordToDataPage(rc, pid);
+	return writeRecordToDataPage(rc, pid);
 }
 
 std::vector<Record> HeapFile::GetAllRecords()
 {
 	BufferManager *BM = BufferManager::getInstance();
-	DiskManager *DM = DiskManager::getInstance();
-	PageId result = DM->AddPage(relInfo.fileIdx);
 	std::vector<char> *header = loadHeader(BM);
 
 	std::vector<char> idv(header->begin(), header->begin() + 4);
@@ -155,7 +153,7 @@ std::vector<Record> HeapFile::GetAllRecords()
 
 	std::vector<Record> records, pageRecords;
 	PageId pid{ .FileIdx = relInfo.fileIdx, .PageIdx = 0 };
-	for (int i = 0; i < id; i++)
+	for (int i = 1; i <= id; i++)
 	{
 		pid.PageIdx = i;
 		pageRecords = getRecordsInDataPage(pid);

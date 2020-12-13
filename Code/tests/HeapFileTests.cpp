@@ -319,10 +319,114 @@ TEST(HeapFileTests, testGetRecordsInDataPage)
 		rc.setValues(createValues(rel));
 		rc.writeToBuffer(*raw, i * rel.recordSize);
 	}
+	BM->FreePage(pid, true);
 
 	std::vector<Record> records = HF.getRecordsInDataPage(pid);
 
 	EXPECT_EQ((int)records.size(), nb);
+
+	BM->resetInstance();
+	DM->resetInstance();
+	remove(getFilename(rel.fileIdx).c_str());
+}
+
+//TEST DE LA FONCTION TEST DE LA MÉTHODE GetAllRecords
+
+TEST(HeapFileTests, testGetAllRecordsEmptyPage)
+{
+	DiskManager *DM = DiskManager::getInstance();
+	BufferManager *BM = BufferManager::getInstance();
+	RelationInfo rel = createRelation(5);
+	HeapFile HF(rel);
+	Record rc(rel);
+
+	rc.setValues(createValues(rel));
+
+	DM->CreateFile(rel.fileIdx);
+	DM->AddPage(rel.fileIdx);
+	DM->AddPage(rel.fileIdx);
+	DM->AddPage(rel.fileIdx);
+
+	std::vector<char> *header = HF.loadHeader(BM);
+	int id = 2;
+	int DPi = rel.slotCount;
+
+	const char *idc = reinterpret_cast<const char *>(&id);
+	const char *DPic = reinterpret_cast<const char *>(&DPi);
+	for (int i = 0; i < 4; i++)
+	{
+		header->at(i) = idc[i];
+		header->at(i + 4) = DPic[i];
+		header->at(i + 8) = DPic[i];
+	}
+	HF.freeHeader(BM, true);
+
+	std::vector<Record> records = HF.GetAllRecords();
+
+	EXPECT_TRUE(records.empty());
+
+	BM->resetInstance();
+	DM->resetInstance();
+	remove(getFilename(rel.fileIdx).c_str());
+}
+
+TEST(HeapFileTests, testGetAllRecords)
+{
+	int nb = 10;
+	DiskManager *DM = DiskManager::getInstance();
+	BufferManager *BM = BufferManager::getInstance();
+	RelationInfo rel = createRelation(5);
+	HeapFile HF(rel);
+	Record rc(rel);
+
+	rc.setValues(createValues(rel));
+
+	DM->CreateFile(rel.fileIdx);
+	DM->AddPage(rel.fileIdx);
+	DM->AddPage(rel.fileIdx);
+	DM->AddPage(rel.fileIdx);
+
+	std::vector<char> *header = HF.loadHeader(BM);
+	int id = 2;
+	int DPi = rel.slotCount - nb;
+
+	const char *idc = reinterpret_cast<const char *>(&id);
+	const char *DPic = reinterpret_cast<const char *>(&DPi);
+	for (int i = 0; i < 4; i++)
+	{
+		header->at(i) = idc[i];
+		header->at(i + 4) = DPic[i];
+		header->at(i + 8) = DPic[i];
+	}
+	HF.freeHeader(BM, true);
+
+	PageId pid = (PageId){.FileIdx = rel.fileIdx, .PageIdx = 1};
+
+	std::vector<char> *raw = BM->GetPage(pid);
+	for (int i = 0; i < nb; i++)
+	{
+		Record rc(rel);
+		rc.setValues(createValues(rel));
+		rc.writeToBuffer(*raw, i * rel.recordSize);
+	}
+	BM->FreePage(pid, true);
+
+	pid = (PageId){.FileIdx = rel.fileIdx, .PageIdx = 2};
+
+	raw = BM->GetPage(pid);
+	if (!raw)
+		raw = BM->GetPage(pid);
+	for (int i = 0; i < nb; i++)
+	{
+		Record rc(rel);
+		rc.setValues(createValues(rel));
+		rc.writeToBuffer(*raw, i * rel.recordSize);
+	}
+	BM->FreePage(pid, true);
+
+	std::vector<Record> records = HF.GetAllRecords();
+
+	EXPECT_EQ((int)records.size(), nb * 2);
 
 	BM->resetInstance();
 	DM->resetInstance();

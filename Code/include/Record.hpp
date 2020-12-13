@@ -11,7 +11,7 @@ class RecordTests;
 class Record
 {
 private:
-	const RelationInfo& relInfo;
+	RelationInfo& relInfo;
 	std::vector<std::string> values;
 
 	FRIEND_TEST(RecordTests, testSizeofType);
@@ -20,8 +20,10 @@ private:
 	FRIEND_TEST(RecordTests, testRWBuffer);
 
 public:
-	Record(const RelationInfo &rel);
+	Record(RelationInfo &rel);
 	~Record();
+
+	Record& operator=(const Record& other);
 
 	void writeToBuffer(std::vector<char> &buff, size_t position);
 	void readFromBuffer(const std::vector<char>& buff, size_t position);

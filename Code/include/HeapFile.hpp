@@ -13,7 +13,7 @@ class HeapFileTests;
 class HeapFile
 {
 private:
-	const RelationInfo& relInfo;
+	RelationInfo& relInfo;
 
 	std::vector<char> *loadHeader(BufferManager *BM);
 	void freeHeader(BufferManager *BM, bool dirty);
@@ -33,8 +33,12 @@ private:
 	FRIEND_TEST(HeapFileTests, testGetRecordsInDataPageEmptyPage);
 	FRIEND_TEST(HeapFileTests, testGetRecordsInDataPage);
 
+	FRIEND_TEST(HeapFileTests, testGetAllRecordsEmptyPage);
+	FRIEND_TEST(HeapFileTests, testGetAllRecords);
+
 public:
-	HeapFile(const RelationInfo& rel);
+	HeapFile(RelationInfo& rel);
+
 	Rid InsertRecord(Record& rc);
 	std::vector<Record> GetAllRecords();
 };
