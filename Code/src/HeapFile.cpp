@@ -1,6 +1,7 @@
 #include "HeapFile.hpp"
 #include "DiskManager.hpp"
 #include "BufferManager.hpp"
+#include <fstream>
 
 HeapFile::HeapFile(RelationInfo &rel) : relInfo(rel)
 {
@@ -118,6 +119,8 @@ std::vector<Record> HeapFile::getRecordsInDataPage(const PageId &pageId)
 	int DPi = *(reinterpret_cast<const int *>(idv.data()));
 	freeHeader(BM, false);
 
+
+	std::cout << "DPI (from HeapFile->getRecordsInDataPage) : " << DPi << std::endl;
 	std::vector<char> *raw = BM->GetPage(pageId);
 	if (raw == NULL)
 		raw = BM->GetPage(pageId);
@@ -149,6 +152,7 @@ std::vector<Record> HeapFile::GetAllRecords()
 
 	std::vector<char> idv(header->begin(), header->begin() + 4);
 	int id = *(reinterpret_cast<const int *>(idv.data()));
+
 	freeHeader(BM, false);
 
 	std::vector<Record> records, pageRecords;

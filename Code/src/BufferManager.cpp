@@ -38,7 +38,6 @@ std::vector<char> *BufferManager::GetPage(const PageId &pageId)
 {
 	if (FRAMES.find(pageId) != FRAMES.end())
 	{
-		FRAMES[pageId]->dirty = 0;
 		FRAMES[pageId]->pinCount = 1;
 		return FRAMES[pageId]->pageDisk;
 	}
@@ -72,7 +71,7 @@ std::vector<char> *BufferManager::GetPage(const PageId &pageId)
 		if (replacementFrame->dirty)
 			DM->WritePage(replacementFrame->pageId, replacementFrame->pageDisk->data());
 		replacementFrame->pinCount = 1;
-		replacementFrame->dirty = false;
+		replacementFrame->dirty = 0;
 		replacementFrame->refBit = 1;
 		replacementFrame->pageId = pageId;
 		replacementFrame->pageDisk->clear();
@@ -86,16 +85,12 @@ std::vector<char> *BufferManager::GetPage(const PageId &pageId)
 
 void BufferManager::FreePage(const PageId &pageId, bool valdirty)
 {
-	FRAMES[pageId]->dirty = valdirty;
+	FRAMES[pageId]->dirty |= valdirty;
 	FRAMES[pageId]->pinCount = 0;
 	FRAMES[pageId]->refBit = 1;
 	auto tmp = FRAMES[pageId]->pageDisk;
 	FRAMES[pageId]->pageDisk = new std::vector<char>(*tmp);
 	delete tmp;
-
-	std::ofstream file("dump", std::ios::binary | std::ios::trunc);
-	file.write(FRAMES[pageId]->pageDisk->data(), FRAMES[pageId]->pageDisk->size());
-	file.close();
 }
 
 void BufferManager::FlushAll()

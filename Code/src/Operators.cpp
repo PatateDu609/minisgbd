@@ -1,5 +1,7 @@
 #include "PageId.hpp"
 #include "RelationInfo.hpp"
+#include "Record.hpp"
+#include <iomanip>
 
 bool operator<(const PageId &a, const PageId &b)
 {
@@ -50,4 +52,39 @@ bool operator==(const RelationInfo &a, const RelationInfo &b)
 bool operator==(const RelationInfo &rel, const std::string &name)
 {
 	return rel.NOM_RELATION == name;
+}
+
+std::ostream& operator<<(std::ostream& os, const Record& record)
+{
+	std::vector<std::string> values = record.getValues();
+
+	if (values.empty())
+		return os;
+	os << values[0];
+	for (size_t i = 1; i < values.size(); i++)
+	{
+		os << " ; " << values[i];
+	}
+	return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const std::vector<Record>& records)
+{
+	for (size_t i = 0; i < records.size(); i++)
+		os << records[i] << std::endl;
+	return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const RelationInfo& rel)
+{
+	os << "Nom relation : " << rel.NOM_RELATION << std::endl;
+	os << "Nombre colonnes : " << rel.NBRE_COLONNES << std::endl;
+	os << "FileIdx : " << rel.fileIdx << std::endl;
+	os << "RelSize : " << rel.recordSize << std::endl;
+	os << "SlotCount : " << rel.slotCount << "(" << std::hex << rel.slotCount << std::dec << ")" << std::endl;
+
+	os << "Colonnes :" << std::endl;
+	for (size_t i = 0; i < rel.NOMS.size(); i++)
+		os << " - " << rel.NOMS[i] << "(" << rel.TYPES[i] << ")" << std::endl;
+	return os;
 }

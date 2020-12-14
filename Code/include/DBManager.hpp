@@ -26,6 +26,9 @@ private:
 	void reset(std::string args);
 	void clean(std::string args);
 	void insert(std::string args);
+	void batchinsert(std::string args);
+	void selectall(std::string args);
+	void selects(std::string args);
 
 	DBManager();
 

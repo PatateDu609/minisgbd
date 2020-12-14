@@ -32,4 +32,7 @@ public:
 	void setValues(const std::vector<std::string>& values);
 };
 
+std::ostream& operator<<(std::ostream& os, const Record& record);
+std::ostream& operator<<(std::ostream& os, const std::vector<Record>& records);
+
 #endif

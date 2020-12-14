@@ -11,7 +11,7 @@ struct HeapFileRelInfoComparator : public std::unary_function<std::string, bool>
 
 	bool operator()(const HeapFile &HF)
 	{
-		return HF.relInfo == relInfo;
+		return HF.relInfo == relInfo.NOM_RELATION;
 	}
 };
 

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include "DBManager.hpp"
 #include "DBInfo.hpp"
 #include "DBParams.hpp"
@@ -18,9 +19,9 @@ DBManager::DBManager()
 	HANDLERS.insert(std::make_pair("CLEAN", &DBManager::clean));
 	HANDLERS.insert(std::make_pair("RESET", &DBManager::reset));
 	HANDLERS.insert(std::make_pair("INSERT", &DBManager::insert));
-	// HANDLERS.insert(std::make_pair("BATCHINSERT", ));
-	// HANDLERS.insert(std::make_pair("SELECTALL", ));
-	// HANDLERS.insert(std::make_pair("SELECTS", ));
+	HANDLERS.insert(std::make_pair("BATCHINSERT", &DBManager::batchinsert));
+	HANDLERS.insert(std::make_pair("SELECTALL", &DBManager::selectall));
+	HANDLERS.insert(std::make_pair("SELECTS", &DBManager::selects));
 
 	// HANDLERS.insert(std::make_pair("SELECTC", ));
 	// HANDLERS.insert(std::make_pair("UPDATE", ));
@@ -127,10 +128,50 @@ void DBManager::insert(std::string args)
 {
 	std::map<std::string, std::string> parsed = parse(args, {"INTO", "RECORD"});
 	std::vector<std::string> values = parseValues(parsed["RECORD"]);
-
 	std::vector<RelationInfo> info = DB_INFO->getInfo();
 	RelationInfo rel = *std::find(info.begin(), info.end(), parsed["INTO"]);
+
 	Record rc(rel);
 	rc.setValues(values);
 	fileManager->InsertRecordInRelation(rc, rel);
+}
+
+void DBManager::batchinsert(std::string args)
+{
+	std::map<std::string, std::string> parsed = parse(args, {"INTO", "FROM FILE"});
+	std::vector<RelationInfo> info = DB_INFO->getInfo();
+	RelationInfo rel = *std::find(info.begin(), info.end(), parsed["INTO"]);
+
+	printParsed(parsed);
+	std::cout << "Rel (from DBManager) :\n" << rel << std::endl;
+
+	std::ifstream csv(parsed["FROM FILE"]);
+	std::string recordLine;
+	while (std::getline(csv, recordLine))
+	{
+		std::vector<std::string> values = parseValues(recordLine, true);
+		Record rc(rel);
+		rc.setValues(values);
+		fileManager->InsertRecordInRelation(rc, rel);
+	}
+	csv.close();
+}
+
+void DBManager::selectall(std::string args)
+{
+	std::map<std::string, std::string> parsed = parse(args, {"FROM"});
+	std::vector<RelationInfo> info = DB_INFO->getInfo();
+	RelationInfo rel = *std::find(info.begin(), info.end(), parsed["FROM"]);
+
+	std::cout << fileManager->SelectAllFromRelation(rel);
+}
+
+void DBManager::selects(std::string args)
+{
+	std::map<std::string, std::string> parsed = parse(args, {"FROM", "WHERE"});
+	std::vector<RelationInfo> info = DB_INFO->getInfo();
+	RelationInfo rel = *std::find(info.begin(), info.end(), parsed["FROM"]);
+	std::vector<std::array<std::string, 2>> condition;
+
+	std::vector<Record> values = fileManager->SelectAllFromRelation(rel);
 }
