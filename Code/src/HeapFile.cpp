@@ -128,6 +128,7 @@ std::vector<Record> HeapFile::getRecordsInDataPage(const PageId &pageId)
 	{
 		int position = i * relInfo.recordSize;
 		Record rc(relInfo);
+		rc.setRid((Rid){ .pageId = pageId, .slotIdx = i });
 		rc.readFromBuffer(*raw, position);
 		records.push_back(rc);
 	}
@@ -162,4 +163,25 @@ std::vector<Record> HeapFile::GetAllRecords()
 		records.insert(records.end(), pageRecords.begin(), pageRecords.end());
 	}
 	return records;
+}
+
+void HeapFile::updateRecords(std::vector<Record> records)
+{
+	BufferManager *BM = BufferManager::getInstance();
+	std::vector<char> *raw;
+	size_t pos;
+	Rid rid;
+
+	for (size_t i = 0; i < records.size(); i++)
+	{
+		rid = records[i].getRid();
+		pos = rid.slotIdx * relInfo.recordSize;
+		raw = BM->GetPage(rid.pageId);
+
+		if (!raw)
+			raw = BM->GetPage(rid.pageId);
+
+		records[i].writeToBuffer(*raw, pos);
+		BM->FreePage(rid.pageId, true);
+	}
 }

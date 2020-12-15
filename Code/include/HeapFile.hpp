@@ -24,6 +24,7 @@ private:
 	PageId getFreeDataPageId();
 	Rid writeRecordToDataPage(Record &rc, const PageId &pageId);
 	std::vector<Record> getRecordsInDataPage(const PageId &pageId);
+	void updateRecords(std::vector<Record> records);
 
 	FRIEND_TEST(HeapFileTests, testCreateNewOnDisk);
 	FRIEND_TEST(HeapFileTests, testAddDataPage);

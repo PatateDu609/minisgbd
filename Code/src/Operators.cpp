@@ -41,6 +41,13 @@ std::ostream &operator<<(std::ostream &oss, const PageId &pid)
 	return oss;
 }
 
+std::ostream &operator<<(std::ostream &oss, const Rid &rid)
+{
+	oss << "SlotId = " << rid.slotIdx;
+	oss << ", Page id = " << rid.pageId;
+	return oss;
+}
+
 bool operator==(const RelationInfo &a, const RelationInfo &b)
 {
 	return a.NBRE_COLONNES == b.NBRE_COLONNES &&

@@ -60,6 +60,11 @@ std::vector<Record> FileManager::SelectAllFromRelation(RelationInfo &relName)
 	return std::find_if(heapFiles.begin(), heapFiles.end(), HeapFileRelInfoComparator(relName))->GetAllRecords();
 }
 
+void FileManager::updateRecords(RelationInfo& relName, const std::vector<Record>& records)
+{
+	std::find_if(heapFiles.begin(), heapFiles.end(), HeapFileRelInfoComparator(relName))->updateRecords(records);
+}
+
 void FileManager::reset()
 {
 	for (HeapFile HF : heapFiles)

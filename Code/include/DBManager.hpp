@@ -29,6 +29,8 @@ private:
 	void batchinsert(std::string args);
 	void selectall(std::string args);
 	void selects(std::string args);
+	void selectc(std::string args);
+	void update(std::string args);
 
 	DBManager();
 

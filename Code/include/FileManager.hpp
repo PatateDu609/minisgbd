@@ -21,6 +21,8 @@ public:
 	Rid InsertRecordInRelation(Record &record, RelationInfo &relName);
 	std::vector<Record> SelectAllFromRelation(RelationInfo &relName);
 
+	void updateRecords(RelationInfo& relName, const std::vector<Record>& records);
+
 	void reset();
 	void clean();
 };

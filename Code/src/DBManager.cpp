@@ -5,6 +5,7 @@
 #include "DBInfo.hpp"
 #include "DBParams.hpp"
 #include "parser.hpp"
+#include "tuples.hpp"
 
 DBManager *DBManager::INSTANCE = NULL;
 
@@ -15,16 +16,14 @@ DBManager::DBManager()
 
 	// Remplissage du dictionnaire de fonctions
 	HANDLERS.insert(std::make_pair("CREATEREL", &DBManager::createRelation));
-
 	HANDLERS.insert(std::make_pair("CLEAN", &DBManager::clean));
 	HANDLERS.insert(std::make_pair("RESET", &DBManager::reset));
 	HANDLERS.insert(std::make_pair("INSERT", &DBManager::insert));
 	HANDLERS.insert(std::make_pair("BATCHINSERT", &DBManager::batchinsert));
 	HANDLERS.insert(std::make_pair("SELECTALL", &DBManager::selectall));
 	HANDLERS.insert(std::make_pair("SELECTS", &DBManager::selects));
-
-	// HANDLERS.insert(std::make_pair("SELECTC", ));
-	// HANDLERS.insert(std::make_pair("UPDATE", ));
+	HANDLERS.insert(std::make_pair("SELECTC", &DBManager::selectc));
+	HANDLERS.insert(std::make_pair("UPDATE", &DBManager::update));
 }
 
 DBManager::~DBManager()
@@ -173,5 +172,39 @@ void DBManager::selects(std::string args)
 	RelationInfo rel = *std::find(info.begin(), info.end(), parsed["FROM"]);
 	std::vector<std::vector<std::string>> condition = parseCondition(parsed["WHERE"]);
 
-	std::vector<Record> values = fileManager->SelectAllFromRelation(rel);
+	std::cout << restrictTuples(rel, fileManager->SelectAllFromRelation(rel), condition);
+}
+
+void DBManager::selectc(std::string args)
+{
+	std::map<std::string, std::string> parsed = parse(args, {"FROM", "WHERE"});
+	std::vector<RelationInfo> info = DB_INFO->getInfo();
+	RelationInfo rel = *std::find(info.begin(), info.end(), parsed["FROM"]);
+	std::vector<std::vector<std::string>> condition = parseCondition(parsed["WHERE"], false);
+
+	std::cout << restrictTuples(rel, fileManager->SelectAllFromRelation(rel), condition);
+}
+
+void DBManager::update(std::string args)
+{
+	args.insert(0, "UPDATE ");
+	std::map<std::string, std::string> parsed = parse(args, {"UPDATE", "SET", "WHERE"});
+	std::vector<RelationInfo> info = DB_INFO->getInfo();
+	RelationInfo rel = *std::find(info.begin(), info.end(), parsed["UPDATE"]);
+
+	std::vector<std::string> set = parseCondition(parsed["SET"])[0];
+	std::vector<std::vector<std::string>> condition = parseCondition(parsed["WHERE"]);
+	std::vector<Record> records = restrictTuples(rel, fileManager->SelectAllFromRelation(rel), condition);
+
+	size_t fromStart = std::find(rel.NOMS.begin(), rel.NOMS.end(), set[0]) - rel.NOMS.begin();
+
+	for (size_t i = 0; i < records.size(); i++)
+	{
+		std::vector<std::string> record = records[i].getValues();
+		record[fromStart] = set[1];
+		records[i].setValues(record);
+	}
+	fileManager->updateRecords(rel, records);
+
+	std::cout << "Total updated records=" << records.size() << std::endl;
 }

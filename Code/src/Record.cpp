@@ -109,3 +109,13 @@ Record& Record::operator=(const Record& other)
 	this->relInfo = other.relInfo;
 	return *this;
 }
+
+void Record::setRid(const Rid& rid)
+{
+	this->rid = rid;
+}
+
+Rid Record::getRid() const
+{
+	return rid;
+}

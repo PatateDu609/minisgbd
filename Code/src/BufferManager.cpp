@@ -45,7 +45,7 @@ std::vector<char> *BufferManager::GetPage(const PageId &pageId)
 	{
 		FRAMES[pageId] = new Frame;
 		FRAMES[pageId]->pageId = pageId;
-		FRAMES[pageId]->dirty = 0;
+		FRAMES[pageId]->dirty = false;
 		FRAMES[pageId]->pinCount = 1;
 		FRAMES[pageId]->refBit = 0;
 		FRAMES[pageId]->pageDisk = new std::vector<char>(DBParams::pageSize);
@@ -71,7 +71,7 @@ std::vector<char> *BufferManager::GetPage(const PageId &pageId)
 		if (replacementFrame->dirty)
 			DM->WritePage(replacementFrame->pageId, replacementFrame->pageDisk->data());
 		replacementFrame->pinCount = 1;
-		replacementFrame->dirty = 0;
+		replacementFrame->dirty = false;
 		replacementFrame->refBit = 1;
 		replacementFrame->pageId = pageId;
 		replacementFrame->pageDisk->clear();

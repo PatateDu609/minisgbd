@@ -2,6 +2,7 @@
 #define RECORD_HPP
 
 #include "RelationInfo.hpp"
+#include "Rid.hpp"
 #include <vector>
 #include <string>
 #include <gtest/gtest.h>
@@ -12,6 +13,7 @@ class Record
 {
 private:
 	RelationInfo& relInfo;
+	Rid rid;
 	std::vector<std::string> values;
 
 	FRIEND_TEST(RecordTests, testSizeofType);
@@ -30,6 +32,8 @@ public:
 
 	std::vector<std::string> getValues() const;
 	void setValues(const std::vector<std::string>& values);
+	void setRid(const Rid& rid);
+	Rid getRid() const;
 };
 
 std::ostream& operator<<(std::ostream& os, const Record& record);
