@@ -28,7 +28,7 @@ static void joinSpecialCases(std::vector<std::string>& result)
 	}
 }
 
-static std::vector<std::string> getWords(std::string str, std::string delim)
+static std::vector<std::string> getWords(std::string str, std::string delim, bool first = false)
 {
 	std::size_t pos = 0;
 	std::string token;
@@ -39,6 +39,8 @@ static std::vector<std::string> getWords(std::string str, std::string delim)
 		token = str.substr(0, pos);
 		result.push_back(token);
 		str.erase(0, pos + delim.length());
+		if (first)
+			break ;
 	}
 	result.push_back(str);
 
@@ -73,16 +75,36 @@ std::vector<std::string> parseValues(std::string tuple, bool batch)
 	return getWords(tuple, ",");
 }
 
-std::vector<std::array<std::string, 2>> parseCondition(std::string conditions)
+std::vector<std::vector<std::string>> parseCondition(std::string conditions, bool simple)
 {
-	std::vector<std::array<std::string, 2>> result;
+	std::vector<std::vector<std::string>> result;
 	std::vector<std::string> words = getWords(conditions, " AND ");
+	std::vector<std::string> operators;
+
+	if (!simple)
+	{
+		operators.push_back("<=");
+		operators.push_back(">=");
+		operators.push_back("<");
+		operators.push_back(">");
+	}
+	operators.push_back("=");
 
 	for (std::string condition : words)
 	{
-		std::vector<std::string> parsed = getWords(condition, "=");
-		std::array<std::string, 2> arr{parsed[0], parsed[1]};
-		result.push_back(arr);
+		std::vector<std::string> parsed;
+
+		for (size_t i = 0; i < operators.size(); i++)
+		{
+			parsed = getWords(condition, operators[i], true);
+			if (parsed.size() >= 2)
+			{
+				if (!simple)
+					parsed.insert(parsed.begin() + 1, operators[i]);
+				break ;
+			}
+		}
+		result.push_back(parsed);
 	}
 
 	return result;

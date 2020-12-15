@@ -171,7 +171,7 @@ void DBManager::selects(std::string args)
 	std::map<std::string, std::string> parsed = parse(args, {"FROM", "WHERE"});
 	std::vector<RelationInfo> info = DB_INFO->getInfo();
 	RelationInfo rel = *std::find(info.begin(), info.end(), parsed["FROM"]);
-	std::vector<std::array<std::string, 2>> condition;
+	std::vector<std::vector<std::string>> condition = parseCondition(parsed["WHERE"]);
 
 	std::vector<Record> values = fileManager->SelectAllFromRelation(rel);
 }

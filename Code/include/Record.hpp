@@ -34,5 +34,6 @@ public:
 
 std::ostream& operator<<(std::ostream& os, const Record& record);
 std::ostream& operator<<(std::ostream& os, const std::vector<Record>& records);
+bool operator==(const Record& a, const Record& b);
 
 #endif

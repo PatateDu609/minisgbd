@@ -88,3 +88,8 @@ std::ostream& operator<<(std::ostream& os, const RelationInfo& rel)
 		os << " - " << rel.NOMS[i] << "(" << rel.TYPES[i] << ")" << std::endl;
 	return os;
 }
+
+bool operator==(const Record& a, const Record& b)
+{
+	return a.getValues() == b.getValues();
+}

@@ -119,8 +119,6 @@ std::vector<Record> HeapFile::getRecordsInDataPage(const PageId &pageId)
 	int DPi = *(reinterpret_cast<const int *>(idv.data()));
 	freeHeader(BM, false);
 
-
-	std::cout << "DPI (from HeapFile->getRecordsInDataPage) : " << DPi << std::endl;
 	std::vector<char> *raw = BM->GetPage(pageId);
 	if (raw == NULL)
 		raw = BM->GetPage(pageId);
