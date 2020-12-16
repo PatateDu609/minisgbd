@@ -15,7 +15,7 @@ int DBParams::frameCount = 2;
 
 int main(int ac, char **av)
 {
-	Input *input = Input::getInstance("");
+	Input *input = Input::getInstance("> ");
 
 	if (ac > 1)
 		DBParams::DBPath = av[1];

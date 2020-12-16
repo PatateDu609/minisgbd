@@ -141,9 +141,6 @@ void DBManager::batchinsert(std::string args)
 	std::vector<RelationInfo> info = DB_INFO->getInfo();
 	RelationInfo rel = *std::find(info.begin(), info.end(), parsed["INTO"]);
 
-	printParsed(parsed);
-	std::cout << "Rel (from DBManager) :\n" << rel << std::endl;
-
 	std::ifstream csv(parsed["FROM FILE"]);
 	std::string recordLine;
 	while (std::getline(csv, recordLine))
