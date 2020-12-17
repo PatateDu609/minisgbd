@@ -65,6 +65,16 @@ void FileManager::updateRecords(RelationInfo& relName, const std::vector<Record>
 	std::find_if(heapFiles.begin(), heapFiles.end(), HeapFileRelInfoComparator(relName))->updateRecords(records);
 }
 
+void FileManager::createIndex(RelationInfo& relName, const std::string& key, int order)
+{
+	std::find_if(heapFiles.begin(), heapFiles.end(), HeapFileRelInfoComparator(relName))->createIndex(key, order);
+}
+
+std::vector<Record> FileManager::selectIndex(RelationInfo& relName, const std::string& key, int value)
+{
+	return std::find_if(heapFiles.begin(), heapFiles.end(), HeapFileRelInfoComparator(relName))->selectIndex(key, value);
+}
+
 void FileManager::reset()
 {
 	for (HeapFile HF : heapFiles)

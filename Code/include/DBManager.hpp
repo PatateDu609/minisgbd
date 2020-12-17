@@ -32,6 +32,9 @@ private:
 	void selectc(std::string args);
 	void update(std::string args);
 
+	void createindex(std::string args);
+	void selectindex(std::string args);
+
 	DBManager();
 
 public:

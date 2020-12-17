@@ -7,6 +7,11 @@ HeapFile::HeapFile(RelationInfo &rel) : relInfo(rel)
 {
 }
 
+HeapFile::~HeapFile()
+{
+
+}
+
 void HeapFile::createNewOnDisk()
 {
 	DiskManager *DM = DiskManager::getInstance();
@@ -184,4 +189,101 @@ void HeapFile::updateRecords(std::vector<Record> records)
 		records[i].writeToBuffer(*raw, pos);
 		BM->FreePage(rid.pageId, true);
 	}
+}
+
+int HeapFile::extractKey(const std::string& key, const Rid& rid)
+{
+	BufferManager *BM = BufferManager::getInstance();
+
+	std::vector<char> *raw = BM->GetPage(rid.pageId);
+	if (!raw)
+		raw = BM->GetPage(rid.pageId);
+	int diff = std::distance(relInfo.NOMS.begin(), std::find(relInfo.NOMS.begin(), relInfo.NOMS.end(), key));
+	int realPos = rid.slotIdx * relInfo.recordSize;
+
+	for (int i = 0; i < diff; i++)
+		realPos += sizeofType(relInfo.TYPES[i]);
+
+	std::vector<char> keyv(raw->begin() + realPos, raw->begin() + realPos + 4);
+	return *reinterpret_cast<const int *>(keyv.data());
+}
+
+std::vector<std::pair<int, std::vector<Rid>>> HeapFile::loadBulk(const PageId& pid, const std::string& key)
+{
+	BufferManager *BM = BufferManager::getInstance();
+
+	std::vector<char> *header = loadHeader(BM);
+	std::vector<char> idv(header->begin() + (pid.PageIdx * 4), header->begin() + (pid.PageIdx * 4) + 4);
+	int DPi = *(reinterpret_cast<const int *>(idv.data()));
+	freeHeader(BM, false);
+
+	std::vector<char> *raw = BM->GetPage(pid);
+	if (!raw)
+		raw = BM->GetPage(pid);
+	std::vector<std::pair<int, std::vector<Rid>>> result;
+	std::vector<int> keys;
+	for (int i = 0; i < relInfo.slotCount - DPi; i++)
+	{
+		Rid rid{ .pageId = pid, .slotIdx = i };
+		int valKey = extractKey(key, rid);
+		auto it = std::find_if(result.begin(), result.end(), BulkKeyFinder(valKey));
+
+		if (it != result.end())
+			it->second.push_back(rid);
+		else
+			result.push_back(std::make_pair(valKey, std::vector<Rid>{rid}));
+	}
+	BM->FreePage(pid, false);
+	return result;
+}
+
+void HeapFile::createIndex(const std::string& key, int order)
+{
+	BufferManager *BM = BufferManager::getInstance();
+	BpTree *BT = new BpTree(order);
+	std::vector<char> *header = loadHeader(BM);
+
+	std::vector<char> idv(header->begin(), header->begin() + 4);
+	int id = *(reinterpret_cast<const int *>(idv.data()));
+
+	freeHeader(BM, false);
+
+	PageId pid;
+	std::vector<std::pair<int, std::vector<Rid>>> bulk;
+	pid.FileIdx = relInfo.fileIdx;
+	for (int i = 1; i <= id; i++)
+	{
+		pid.PageIdx = i;
+		std::vector<std::pair<int, std::vector<Rid>>> loaded = loadBulk(pid, key);
+		bulk.insert(bulk.end(), loaded.begin(), loaded.end());
+	}
+	std::sort(bulk.begin(), bulk.end(), [](const std::pair<int, std::vector<Rid>>& a, const std::pair<int, std::vector<Rid>>& b) { return a.first < b.first; });
+	std::cout << "BT = " << BT << std::endl;
+	BT = BT->insertBulk(bulk);
+	std::cout << "BT = " << BT << std::endl;
+
+	indexes[key] = BT;
+}
+
+Record HeapFile::getRecord(const Rid& rid)
+{
+	BufferManager *BM = BufferManager::getInstance();
+	Record rc(relInfo);
+
+	std::vector<char> *raw = BM->GetPage(rid.pageId);
+	if (!raw)
+		raw = BM->GetPage(rid.pageId);
+	rc.readFromBuffer(*raw, rid.slotIdx * relInfo.recordSize);
+	return rc;
+}
+
+std::vector<Record> HeapFile::selectIndex(const std::string& key, int value)
+{
+	std::vector<Record> records;
+
+	std::vector<Rid> rids = indexes[key]->search(value);
+
+	for (size_t i = 0; i < rids.size(); i++)
+		records.push_back(getRecord(rids[i]));
+	return records;
 }

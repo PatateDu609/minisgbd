@@ -6,6 +6,7 @@
 #include "DBParams.hpp"
 #include "parser.hpp"
 #include "tuples.hpp"
+#include <algorithm>
 
 DBManager *DBManager::INSTANCE = NULL;
 
@@ -24,6 +25,8 @@ DBManager::DBManager()
 	HANDLERS.insert(std::make_pair("SELECTS", &DBManager::selects));
 	HANDLERS.insert(std::make_pair("SELECTC", &DBManager::selectc));
 	HANDLERS.insert(std::make_pair("UPDATE", &DBManager::update));
+	HANDLERS.insert(std::make_pair("CREATEINDEX", &DBManager::createindex));
+	HANDLERS.insert(std::make_pair("SELECTINDEX", &DBManager::selectindex));
 }
 
 DBManager::~DBManager()
@@ -182,6 +185,16 @@ void DBManager::selectc(std::string args)
 	std::cout << restrictTuples(rel, fileManager->SelectAllFromRelation(rel), condition);
 }
 
+void DBManager::selectindex(std::string args)
+{
+	std::map<std::string, std::string> parsed = parse(args, {"FROM", "WHERE"});
+	std::vector<RelationInfo> info = DB_INFO->getInfo();
+	RelationInfo rel = *std::find(info.begin(), info.end(), parsed["FROM"]);
+	std::vector<std::string> condition = parseCondition(parsed["WHERE"])[0];
+
+	std::cout << fileManager->selectIndex(rel, condition[0], std::stoi(condition[1]));
+}
+
 void DBManager::update(std::string args)
 {
 	args.insert(0, "UPDATE ");
@@ -204,4 +217,22 @@ void DBManager::update(std::string args)
 	fileManager->updateRecords(rel, records);
 
 	std::cout << "Total updated records=" << records.size() << std::endl;
+}
+
+void DBManager::createindex(std::string args)
+{
+	args.insert(args.find("KEY"), "KEY ").insert(args.find("ORDER"), "ORDER ");
+	std::map<std::string, std::string> parsed = parse(args, {"ON", "KEY", "ORDER"});
+	std::vector<RelationInfo> info = DB_INFO->getInfo();
+	RelationInfo rel = *std::find(info.begin(), info.end(), parsed["ON"]);
+
+	std::string key = parsed["KEY"].substr(parsed["KEY"].find("=") + 1);
+	int order = std::stoi(parsed["ORDER"].substr(parsed["ORDER"].find("=") + 1));
+
+	std::cout << "parsed : " << std::endl;
+	printParsed(parsed);
+	std::cout << "Relation : " << rel;
+	std::cout << "Key : " << key << " (" << rel.TYPES[std::distance(rel.NOMS.begin(), std::find(rel.NOMS.begin(), rel.NOMS.end(), key))] << "), order = " << order << std::endl;
+
+	fileManager->createIndex(rel, key, order);
 }

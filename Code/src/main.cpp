@@ -8,6 +8,7 @@
 #include "DiskManager.hpp"
 #include "Input.hpp"
 #include "Record.hpp"
+#include "parser.hpp"
 
 std::string DBParams::DBPath = "DB/";
 int DBParams::pageSize = 4096;

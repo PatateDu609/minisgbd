@@ -6,6 +6,12 @@ Record::Record(RelationInfo &rel) : relInfo(rel)
 {
 }
 
+Record::Record(const Record& other) : relInfo(other.relInfo)
+{
+	values = other.values;
+	rid = other.rid;
+}
+
 Record::~Record()
 {
 }

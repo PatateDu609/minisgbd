@@ -33,6 +33,7 @@ SRCS_BASENAME		=	main			\
 						RelationInfo	\
 						parser			\
 						tuples			\
+						BpTree
 
 ################################################################################
 #                              Name of test files                              #

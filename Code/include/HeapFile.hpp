@@ -6,7 +6,9 @@
 #include "BufferManager.hpp"
 #include "Rid.hpp"
 #include "Record.hpp"
+#include "BpTree.hpp"
 #include <vector>
+#include <utility>
 
 class HeapFile
 {
@@ -14,7 +16,12 @@ private:
 	friend class FileManager;
 	friend struct HeapFileRelInfoComparator;
 
+	std::map<std::string, BpTree*> indexes;
+
 	RelationInfo relInfo;
+
+	int extractKey(const std::string& key, const Rid& rid);
+	Record getRecord(const Rid& rid);
 
 	std::vector<char> *loadHeader(BufferManager *BM);
 	void freeHeader(BufferManager *BM, bool dirty);
@@ -25,6 +32,10 @@ private:
 	Rid writeRecordToDataPage(Record &rc, const PageId &pageId);
 	std::vector<Record> getRecordsInDataPage(const PageId &pageId);
 	void updateRecords(std::vector<Record> records);
+
+	void createIndex(const std::string& key, int order);
+	std::vector<std::pair<int, std::vector<Rid>>> loadBulk(const PageId& pid, const std::string& key);
+	std::vector<Record> selectIndex(const std::string& key, int value);
 
 	FRIEND_TEST(HeapFileTests, testCreateNewOnDisk);
 	FRIEND_TEST(HeapFileTests, testAddDataPage);
@@ -40,6 +51,7 @@ private:
 
 public:
 	HeapFile(RelationInfo &rel);
+	~HeapFile();
 
 	Rid InsertRecord(Record &rc);
 	std::vector<Record> GetAllRecords();

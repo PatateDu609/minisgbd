@@ -116,7 +116,7 @@ std::string Input::getline()
 		OLD_BUFFER.clear();
 
 		write(STDOUT_FILENO, PROMPT.c_str(), PROMPT.length());
-		while ((i = read(STDIN_FILENO, COMMAND, 16)) > 0)
+		while ((i = read(STDIN_FILENO, COMMAND, 15)) > 0)
 		{
 			COMMAND[i] = 0;
 			if (i > 1)

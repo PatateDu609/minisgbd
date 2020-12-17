@@ -23,6 +23,7 @@ private:
 
 public:
 	Record(RelationInfo &rel);
+	Record(const Record& other);
 	~Record();
 
 	Record& operator=(const Record& other);
